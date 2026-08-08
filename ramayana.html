@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>smartRama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Spectral:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  .pack h3::before{display:none}
+  :root{
+    --paper:#f3ead9; --leaf:#fbf6ea; --sunk:#ece0c9;
+    --ink:#231a12; --ink-soft:#6d5b47; --ink-muted:#8d7a63;
+    --rule:#d8c7a8; --rule-soft:#e6d9bf;
+    --pack:#9c3117;
+    --display:"Cormorant Garamond","Hoefler Text",Garamond,"Times New Roman",serif;
+    --body:"Spectral",Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; min-height:100vh; background:var(--paper); color:var(--ink);
+    font-family:var(--body); font-weight:400; font-size:16px; line-height:1.6;
+    display:flex; justify-content:center; padding:38px 18px 70px;
+  }
+  .wrap{width:100%; max-width:600px}
+
+  /* ---- masthead ---- */
+  header{text-align:center; margin-bottom:26px}
+  .rules{border-top:1px solid var(--rule); border-bottom:3px double var(--rule); height:5px; margin-bottom:20px}
+  h1{
+    margin:0; font-family:var(--display); font-weight:600; font-size:40px; line-height:1.05;
+    letter-spacing:.01em;
+  }
+  .tagline{
+    margin-top:9px; font-size:12px; letter-spacing:.19em; text-transform:uppercase;
+    color:var(--pack); font-weight:500;
+  }
+  .orn{display:block; margin:16px auto 0; width:132px; height:13px; color:var(--rule)}
+  .sub{margin-top:14px; font-size:13px; color:var(--ink-soft); font-style:italic; font-family:var(--display); letter-spacing:.02em}
+
+  /* ---- pack list ---- */
+  .packs{display:grid; gap:0; border-top:1px solid var(--rule)}
+  .pack{
+    border-bottom:1px solid var(--rule); padding:22px 2px 24px;
+    display:flex; flex-direction:column;
+  }
+  .pack[data-pack="ramayana"]{--c:#9c3117}
+  .pack h3{
+    margin:0; font-family:var(--display); font-size:27px; font-weight:600; line-height:1.15;
+  }
+  .pack h3::before{
+    content:""; display:block; width:26px; height:2px; background:var(--c); margin-bottom:11px;
+  }
+  .pack p{margin:7px 0 0; color:var(--ink-soft); font-size:14.5px; line-height:1.62; font-weight:300}
+  .pack .meta{
+    margin-top:12px; font-size:11.5px; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--ink-soft); min-height:15px;
+  }
+  .actions{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
+  .go{
+    font:inherit; font-size:11.5px; letter-spacing:.15em; text-transform:uppercase; font-weight:500;
+    padding:11px 17px; cursor:pointer; border:1px solid var(--ink); background:transparent;
+    color:var(--ink); border-radius:1px; transition:background .14s,color .14s;
+  }
+  .go:hover{background:var(--sunk)}
+  .go.primary{background:var(--c); border-color:var(--c); color:var(--leaf)}
+  .go.primary:hover{background:var(--ink); border-color:var(--ink)}
+
+  /* ---- quiz sheet ---- */
+  .card{background:var(--leaf); border:1px solid var(--rule); border-radius:2px; padding:26px 26px 28px}
+  .bar{height:2px; background:var(--rule-soft); margin-bottom:20px}
+  .bar i{display:block; height:100%; background:var(--pack); width:0; transition:width .35s}
+  .topline{
+    display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+    font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-soft);
+    border-bottom:1px solid var(--rule-soft); padding-bottom:9px; margin-bottom:20px;
+  }
+  .chip{white-space:nowrap}
+  .chip.pts{color:var(--pack); font-weight:500}
+  .chip.run{font-variant-numeric:tabular-nums}
+  .qtext{
+    font-family:var(--display); font-size:26px; line-height:1.32; font-weight:500;
+    margin:0 0 22px; letter-spacing:.005em;
+  }
+  .opts{display:grid; gap:0; border-top:1px solid var(--rule-soft)}
+  .opt{
+    text-align:left; font:inherit; font-size:16.5px; color:var(--ink); cursor:pointer; width:100%;
+    padding:14px 12px 14px 10px; background:transparent; border:0;
+    border-bottom:1px solid var(--rule-soft); border-left:3px solid transparent;
+    display:flex; gap:14px; align-items:baseline; transition:background .12s;
+  }
+  .opt:hover:not(:disabled){background:var(--sunk)}
+  .opt:disabled{cursor:default}
+  .opt .k{
+    flex:none; width:19px; font-family:var(--display); font-size:15px; font-style:italic;
+    color:var(--ink-soft); letter-spacing:.02em;
+  }
+  .opt.correct{border-left-color:#4a6b34; background:rgba(74,107,52,.09)}
+  .opt.correct .k{color:#3d5a2b; font-style:normal; font-weight:600}
+  .opt.wrong{border-left-color:#9c3117; background:rgba(156,49,23,.07)}
+  .opt.wrong .k{color:#9c3117; font-style:normal; font-weight:600}
+  .explain{
+    margin-top:22px; padding:16px 18px; background:var(--sunk); border-left:3px solid var(--pack);
+    font-size:14.5px; line-height:1.66; color:var(--ink-soft); font-weight:300;
+  }
+  .explain b{color:var(--ink); font-weight:500}
+  button.next{
+    margin-top:22px; width:100%; padding:14px; font:inherit; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; font-weight:500; cursor:pointer; border:1px solid var(--ink);
+    border-radius:1px; background:var(--ink); color:var(--leaf);
+  }
+  button.next:hover{background:transparent; color:var(--ink)}
+  button.ghost{
+    margin-top:10px; width:100%; padding:12px; font:inherit; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; cursor:pointer; border:1px solid var(--rule); border-radius:1px;
+    background:transparent; color:var(--ink-soft);
+  }
+  button.ghost:hover{border-color:var(--ink); color:var(--ink)}
+
+  /* ---- result ---- */
+  .score{text-align:center; padding-bottom:6px}
+  .score .big{
+    font-family:var(--display); font-size:62px; font-weight:600; color:var(--pack);
+    line-height:1; font-variant-numeric:tabular-nums;
+  }
+  .score .sub2{font-size:14px; margin-top:8px; letter-spacing:.02em}
+  .score .msg{
+    color:var(--ink-soft); font-family:var(--display); font-style:italic; font-size:17px;
+    margin:10px 0 22px;
+  }
+  .review{display:grid; gap:0; text-align:left; border-top:1px solid var(--rule-soft); margin-bottom:6px}
+  .rrow{
+    display:flex; gap:12px; align-items:baseline; font-size:14px; padding:11px 2px;
+    border-bottom:1px solid var(--rule-soft); color:var(--ink-soft); font-weight:300;
+  }
+  .rrow .m{flex:none; width:13px; font-weight:500}
+  .rrow .m.ok{color:#4a6b34} .rrow .m.no{color:#9c3117}
+  .rrow .q{flex:1; line-height:1.5}
+  .rrow .p{flex:none; font-variant-numeric:tabular-nums; letter-spacing:.04em; font-size:12.5px}
+  .rrow .p.ok{color:var(--pack); font-weight:500}
+  .streak{
+    font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-soft);
+    margin-top:18px; text-align:center; line-height:1.9;
+  }
+  .foot{
+    margin-top:26px; font-size:12.5px; line-height:1.85; color:var(--ink-soft);
+    font-weight:300; text-align:center; border-top:1px solid var(--rule); padding-top:18px;
+  }
+  .foot b{font-weight:500; color:var(--ink)}
+  .hidden{display:none}
+  @media(max-width:520px){
+    h1{font-size:33px} .qtext{font-size:22px} .card{padding:22px 18px 24px} .score .big{font-size:52px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="rules"></div>
+    <h1>smartRama</h1>
+    <div class="tagline">the ramayana · five a day</div>
+    <svg class="orn" viewBox="0 0 132 13" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+      <path d="M0 6.5h48"/><path d="M84 6.5h48"/>
+      <path d="M66 1.2c2.6 2 4.2 3.7 4.2 5.3S68.6 10 66 11.8C63.4 10 61.8 8.1 61.8 6.5S63.4 3.2 66 1.2z"/>
+      <path d="M53.5 6.5c2.6-1.5 5.2-1.5 7.8 0-2.6 1.5-5.2 1.5-7.8 0z"/>
+      <path d="M78.5 6.5c-2.6-1.5-5.2-1.5-7.8 0 2.6 1.5 5.2 1.5 7.8 0z"/>
+    </svg>
+    <div class="sub" id="dateline"></div>
+  </header>
+
+  <section id="home">
+    <div class="packs">
+      <div class="pack" data-pack="ramayana">
+        <h3>Ramayana</h3>
+        <p>Ayodhya and Lanka, the exile and the war — Rama, Sita, Lakshmana, Hanuman, Ravana.</p>
+        <div class="meta" id="meta-ramayana"></div>
+        <div class="actions">
+          <button class="go primary" data-pack="ramayana" data-mode="daily" id="daily-ramayana">Today&rsquo;s five</button>
+          <button class="go" data-pack="ramayana" data-mode="endless">Unlimited rounds</button>
+        </div>
+      </div>
+    </div>
+    <div class="foot">
+      <b>Ten points</b> for the easy, <b>fifteen</b> for the middling, <b>twenty-five</b> for the difficult — seventy-five in a round.<br>
+      The five of the day are the same five for every reader. The unlimited rounds are yours alone.
+    </div>
+  </section>
+
+  <section id="quiz" class="card hidden">
+    <div class="bar"><i id="prog"></i></div>
+    <div class="topline">
+      <span id="counter"></span>
+      <span><span class="chip run" id="running"></span> &nbsp;&middot;&nbsp; <span class="chip pts" id="diff"></span></span>
+    </div>
+    <div class="qtext" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+    <div class="explain hidden" id="explain"></div>
+    <button class="next hidden" id="next"></button>
+  </section>
+
+  <section id="result" class="card hidden">
+    <div class="score">
+      <div class="big" id="bigscore"></div>
+      <div class="sub2" id="subscore"></div>
+      <div class="msg" id="msg"></div>
+    </div>
+    <div class="review" id="review"></div>
+    <div class="streak" id="streakline"></div>
+    <button class="next" id="again-btn"></button>
+    <button class="ghost" id="home-btn">Return to the packs</button>
+  </section>
+</div>
+
+<script>
+const BANKS = {
+ "ramayana": [
+  {
+   "q": "Who composed the original Sanskrit Ramayana?",
+   "a": "Valmiki",
+   "w": [
+    "Vyasa",
+    "Tulsidas",
+    "Kalidasa"
+   ],
+   "d": "e",
+   "e": "Sage Valmiki wrote the Adi Kavya (first poem). Tulsidas later wrote the Awadhi Ramcharitmanas."
+  },
+  {
+   "q": "Who was Rama's father?",
+   "a": "Dasharatha",
+   "w": [
+    "Janaka",
+    "Raghu",
+    "Aja"
+   ],
+   "d": "e",
+   "e": "Dasharatha, king of Ayodhya, had four sons: Rama, Bharata, Lakshmana and Shatrughna."
+  },
+  {
+   "q": "Which kingdom did Rama belong to?",
+   "a": "Ayodhya",
+   "w": [
+    "Mithila",
+    "Kishkindha",
+    "Lanka"
+   ],
+   "d": "e",
+   "e": "Ayodhya was the capital of the Kosala kingdom, ruled by the Ikshvaku dynasty."
+  },
+  {
+   "q": "Who was Rama's wife?",
+   "a": "Sita",
+   "w": [
+    "Urmila",
+    "Mandodari",
+    "Tara"
+   ],
+   "d": "e",
+   "e": "Sita, daughter of King Janaka of Mithila, won by Rama at her swayamvara."
+  },
+  {
+   "q": "Who was the demon king of Lanka?",
+   "a": "Ravana",
+   "w": [
+    "Kumbhakarna",
+    "Maricha",
+    "Khara"
+   ],
+   "d": "e",
+   "e": "Ravana, the ten-headed rakshasa king, abducted Sita and was slain by Rama."
+  },
+  {
+   "q": "How many years of exile was Rama sentenced to?",
+   "a": "14 years",
+   "w": [
+    "12 years",
+    "10 years",
+    "20 years"
+   ],
+   "d": "e",
+   "e": "Kaikeyi demanded 14 years of forest exile for Rama and the throne for Bharata."
+  },
+  {
+   "q": "Which brother accompanied Rama into exile?",
+   "a": "Lakshmana",
+   "w": [
+    "Bharata",
+    "Shatrughna",
+    "Vibhishana"
+   ],
+   "d": "e",
+   "e": "Lakshmana, son of Sumitra, served Rama and Sita throughout the forest years."
+  },
+  {
+   "q": "Who is the great monkey devotee of Rama?",
+   "a": "Hanuman",
+   "w": [
+    "Sugriva",
+    "Angada",
+    "Nala"
+   ],
+   "d": "e",
+   "e": "Hanuman, son of the wind god Vayu, leapt to Lanka and found Sita."
+  },
+  {
+   "q": "Who was Sita's father?",
+   "a": "Janaka",
+   "w": [
+    "Dasharatha",
+    "Kushadhwaja",
+    "Sumantra"
+   ],
+   "d": "e",
+   "e": "Janaka, the philosopher-king of Mithila, found Sita in a furrow while ploughing."
+  },
+  {
+   "q": "Which of Dasharatha's queens demanded Rama's exile?",
+   "a": "Kaikeyi",
+   "w": [
+    "Kausalya",
+    "Sumitra",
+    "Mandodari"
+   ],
+   "d": "e",
+   "e": "Kaikeyi used two boons Dasharatha had earlier promised her."
+  },
+  {
+   "q": "How many heads is Ravana traditionally depicted with?",
+   "a": "Ten",
+   "w": [
+    "Five",
+    "Seven",
+    "Twelve"
+   ],
+   "d": "e",
+   "e": "His name Dashanana means 'ten-faced'; the heads are often read as the six vices plus the four Vedas."
+  },
+  {
+   "q": "What did Hanuman burn down in Lanka?",
+   "a": "The city of Lanka",
+   "w": [
+    "Ravana's fleet",
+    "The Ashoka grove",
+    "Ravana's palace only"
+   ],
+   "d": "e",
+   "e": "Rakshasas set his tail alight; Hanuman leapt across rooftops and set the city ablaze."
+  },
+  {
+   "q": "Who was Rama's mother?",
+   "a": "Kausalya",
+   "w": [
+    "Kaikeyi",
+    "Sumitra",
+    "Anjana"
+   ],
+   "d": "e",
+   "e": "Kausalya was Dasharatha's eldest queen."
+  },
+  {
+   "q": "Rama is considered which avatar of Vishnu?",
+   "a": "The seventh",
+   "w": [
+    "The fifth",
+    "The eighth",
+    "The tenth"
+   ],
+   "d": "e",
+   "e": "Rama is the seventh of the ten principal avatars; Krishna is the eighth."
+  },
+  {
+   "q": "What was built to cross the ocean to Lanka?",
+   "a": "A bridge of stones (Rama Setu)",
+   "w": [
+    "A fleet of ships",
+    "A tunnel",
+    "A rope bridge"
+   ],
+   "d": "e",
+   "e": "The vanara engineer Nala supervised the causeway, also called Nala Setu."
+  },
+  {
+   "q": "Who ruled Ayodhya during Rama's exile?",
+   "a": "Bharata, on Rama's behalf",
+   "w": [
+    "Shatrughna",
+    "Kaikeyi",
+    "Vasishtha"
+   ],
+   "d": "e",
+   "e": "Bharata refused the throne and placed Rama's sandals on it, ruling from Nandigrama."
+  },
+  {
+   "q": "What form did the demon Maricha take to lure Rama away?",
+   "a": "A golden deer",
+   "w": [
+    "A white horse",
+    "A wounded sage",
+    "A peacock"
+   ],
+   "d": "e",
+   "e": "Sita asked for the deer; Rama's pursuit left her unguarded and Ravana struck."
+  },
+  {
+   "q": "Who was Ravana's chief queen?",
+   "a": "Mandodari",
+   "w": [
+    "Shurpanakha",
+    "Trijata",
+    "Tara"
+   ],
+   "d": "e",
+   "e": "Mandodari repeatedly urged Ravana to return Sita and avoid war."
+  },
+  {
+   "q": "Which bird fought Ravana to try to save Sita?",
+   "a": "Jatayu, the vulture king",
+   "w": [
+    "Garuda",
+    "Sampati",
+    "Kakabhushundi"
+   ],
+   "d": "e",
+   "e": "Ravana cut off Jatayu's wings; the dying bird told Rama which way he had gone."
+  },
+  {
+   "q": "Where in Lanka was Sita held captive?",
+   "a": "Ashoka Vatika",
+   "w": [
+    "Pushpaka Vimana",
+    "Trikuta fort",
+    "Nikumbhila grove"
+   ],
+   "d": "e",
+   "e": "The Ashoka grove was a garden where Sita refused Ravana under a shimshapa tree."
+  },
+  {
+   "q": "Whose nose did Lakshmana cut off?",
+   "a": "Shurpanakha",
+   "w": [
+    "Tataka",
+    "Ayomukhi",
+    "Trijata"
+   ],
+   "d": "m",
+   "e": "Ravana's sister was disfigured after threatening Sita, which triggered the war."
+  },
+  {
+   "q": "Which of Ravana's brothers defected to Rama's side?",
+   "a": "Vibhishana",
+   "w": [
+    "Kumbhakarna",
+    "Khara",
+    "Ahiravana"
+   ],
+   "d": "m",
+   "e": "Vibhishana advised returning Sita, was banished, and was later crowned king of Lanka."
+  },
+  {
+   "q": "Ravana's brother Kumbhakarna was cursed to do what?",
+   "a": "Sleep for six months at a time",
+   "w": [
+    "Never speak the truth",
+    "Grow to a giant every night",
+    "Forget his own name"
+   ],
+   "d": "m",
+   "e": "A slip of the tongue before Brahma turned a request for indrasana into nidrasana (sleep)."
+  },
+  {
+   "q": "Which bow did Rama break to win Sita's hand?",
+   "a": "Shiva's bow, Pinaka",
+   "w": [
+    "Vishnu's bow, Sharanga",
+    "Indra's bow",
+    "Parashurama's axe-bow"
+   ],
+   "d": "m",
+   "e": "The bow at Janaka's court was Shiva's; breaking it also summoned an angry Parashurama."
+  },
+  {
+   "q": "Which sage took the young Rama and Lakshmana to guard his sacrifice?",
+   "a": "Vishwamitra",
+   "w": [
+    "Vasishtha",
+    "Agastya",
+    "Bharadwaja"
+   ],
+   "d": "m",
+   "e": "Vishwamitra also taught them the divine weapons bala and atibala."
+  },
+  {
+   "q": "Whom did Rama free from a curse of stone?",
+   "a": "Ahalya",
+   "w": [
+    "Shabari",
+    "Anasuya",
+    "Tara"
+   ],
+   "d": "m",
+   "e": "Ahalya, wife of sage Gautama, was restored by the touch of Rama's feet."
+  },
+  {
+   "q": "Whom did Rama kill to restore Sugriva to the throne of Kishkindha?",
+   "a": "Vali",
+   "w": [
+    "Angada",
+    "Dundubhi",
+    "Riksharaja"
+   ],
+   "d": "m",
+   "e": "Rama shot Vali from behind a tree during his duel with Sugriva."
+  },
+  {
+   "q": "Who reminded Hanuman of his own forgotten powers before the ocean leap?",
+   "a": "Jambavan",
+   "w": [
+    "Sugriva",
+    "Angada",
+    "Nala"
+   ],
+   "d": "m",
+   "e": "Jambavan, the bear king, recalled the curse that had made Hanuman forget his strength."
+  },
+  {
+   "q": "What were the names of Rama and Sita's twin sons?",
+   "a": "Lava and Kusha",
+   "w": [
+    "Lava and Angada",
+    "Kusha and Bharata",
+    "Chandraketu and Taksha"
+   ],
+   "d": "m",
+   "e": "They were born in Valmiki's ashram and later recited the Ramayana to Rama."
+  },
+  {
+   "q": "Which elderly devotee offered Rama berries she had already tasted?",
+   "a": "Shabari",
+   "w": [
+    "Anasuya",
+    "Ahalya",
+    "Trijata"
+   ],
+   "d": "m",
+   "e": "Rama accepted them, honouring devotion over ritual purity."
+  },
+  {
+   "q": "How many kandas (books) are in Valmiki's Ramayana?",
+   "a": "Seven",
+   "w": [
+    "Five",
+    "Six",
+    "Eighteen"
+   ],
+   "d": "m",
+   "e": "Bala, Ayodhya, Aranya, Kishkindha, Sundara, Yuddha and Uttara Kanda."
+  },
+  {
+   "q": "What herb did Hanuman fetch for the wounded Lakshmana?",
+   "a": "Sanjeevani",
+   "w": [
+    "Soma",
+    "Amrita",
+    "Tulsi"
+   ],
+   "d": "m",
+   "e": "Unable to identify it, Hanuman carried the whole Dronagiri mountain."
+  },
+  {
+   "q": "Which demoness did Rama kill at Vishwamitra's request?",
+   "a": "Tataka",
+   "w": [
+    "Shurpanakha",
+    "Ayomukhi",
+    "Simhika"
+   ],
+   "d": "m",
+   "e": "Tataka was terrorising the forest around the sage's hermitage."
+  },
+  {
+   "q": "Who was Hanuman's mother?",
+   "a": "Anjana",
+   "w": [
+    "Tara",
+    "Ruma",
+    "Sumitra"
+   ],
+   "d": "m",
+   "e": "Anjana was an apsara born on earth; Hanuman is therefore called Anjaneya."
+  },
+  {
+   "q": "Who was Lakshmana's wife?",
+   "a": "Urmila",
+   "w": [
+    "Mandavi",
+    "Shrutakirti",
+    "Tara"
+   ],
+   "d": "m",
+   "e": "Urmila, Sita's sister, stayed in Ayodhya through the fourteen years."
+  },
+  {
+   "q": "What flying chariot did Ravana own?",
+   "a": "Pushpaka Vimana",
+   "w": [
+    "Garuda Ratha",
+    "Vayu Ratha",
+    "Meghadoot"
+   ],
+   "d": "m",
+   "e": "He seized it from his half-brother Kubera; Rama used it to return to Ayodhya."
+  },
+  {
+   "q": "Which ferryman carried Rama across the Ganga?",
+   "a": "Guha, the Nishada king",
+   "w": [
+    "Sumantra",
+    "Nala",
+    "Kabandha"
+   ],
+   "d": "m",
+   "e": "Guha of Shringaverapura was a devoted friend to Rama in exile."
+  },
+  {
+   "q": "Who was Ravana's son, a warrior who once defeated Indra?",
+   "a": "Indrajit (Meghanada)",
+   "w": [
+    "Atikaya",
+    "Akshayakumara",
+    "Narantaka"
+   ],
+   "d": "m",
+   "e": "He earned the name Indrajit — 'conqueror of Indra' — and was slain by Lakshmana."
+  },
+  {
+   "q": "What test did Sita undergo to prove her purity?",
+   "a": "Agni Pariksha, the trial by fire",
+   "w": [
+    "A trial by water",
+    "An oath before Vasishtha",
+    "A year of silence"
+   ],
+   "d": "m",
+   "e": "Agni himself returned her unharmed to Rama."
+  },
+  {
+   "q": "Who was Dasharatha's trusted charioteer and minister?",
+   "a": "Sumantra",
+   "w": [
+    "Sumitra",
+    "Sushena",
+    "Sumali"
+   ],
+   "d": "m",
+   "e": "Sumantra drove Rama to the forest and returned with the news that broke Dasharatha."
+  },
+  {
+   "q": "Which rakshasi comforted Sita and dreamt of Ravana's defeat?",
+   "a": "Trijata",
+   "w": [
+    "Shurpanakha",
+    "Simhika",
+    "Ayomukhi"
+   ],
+   "d": "m",
+   "e": "Trijata, Vibhishana's daughter in some tellings, was kind to Sita in the Ashoka grove."
+  },
+  {
+   "q": "Who was Vali's son, sent as an envoy to Ravana's court?",
+   "a": "Angada",
+   "w": [
+    "Nala",
+    "Nila",
+    "Sushena"
+   ],
+   "d": "m",
+   "e": "Angada planted his foot in Ravana's hall and challenged anyone to move it."
+  },
+  {
+   "q": "Approximately how many shlokas does Valmiki's Ramayana contain?",
+   "a": "About 24,000",
+   "w": [
+    "About 6,000",
+    "About 50,000",
+    "About 100,000"
+   ],
+   "d": "h",
+   "e": "Roughly 24,000 verses across seven kandas — the Mahabharata is about 100,000."
+  },
+  {
+   "q": "Which sea creature swallowed Hanuman's shadow during his ocean leap?",
+   "a": "Simhika",
+   "w": [
+    "Surasa",
+    "Mainaka",
+    "Timingala"
+   ],
+   "d": "h",
+   "e": "Hanuman entered her body and tore free; Surasa was the naga mother who tested him."
+  },
+  {
+   "q": "Which hymn did sage Agastya teach Rama before the final duel with Ravana?",
+   "a": "Aditya Hridayam",
+   "w": [
+    "Hanuman Chalisa",
+    "Vishnu Sahasranama",
+    "Rudram"
+   ],
+   "d": "h",
+   "e": "The hymn to the sun god was given to steady Rama on the battlefield."
+  },
+  {
+   "q": "Which headless demon did Rama and Lakshmana kill in the Dandaka forest?",
+   "a": "Kabandha",
+   "w": [
+    "Viradha",
+    "Khara",
+    "Dushana"
+   ],
+   "d": "h",
+   "e": "Freed from his curse, Kabandha directed them to Sugriva at Rishyamukha."
+  },
+  {
+   "q": "Ravana's boon made him invulnerable to gods and demons — but not to whom?",
+   "a": "Humans and animals",
+   "w": [
+    "Sages and women",
+    "Fire and water",
+    "Nagas and yakshas"
+   ],
+   "d": "h",
+   "e": "He scorned men and beasts as too weak to name, which is why Vishnu incarnated as a man."
+  },
+  {
+   "q": "Which vanara engineer designed the bridge to Lanka?",
+   "a": "Nala",
+   "w": [
+    "Nila",
+    "Angada",
+    "Sushena"
+   ],
+   "d": "h",
+   "e": "Nala, son of Vishwakarma, had a boon that whatever he threw into water would float."
+  },
+  {
+   "q": "Sampati, who told the vanaras where Sita was, was whose brother?",
+   "a": "Jatayu",
+   "w": [
+    "Garuda",
+    "Kabandha",
+    "Aruna"
+   ],
+   "d": "h",
+   "e": "Sampati had lost his wings shielding Jatayu from the sun; his far-sight located Sita."
+  },
+  {
+   "q": "Where did Indrajit perform the sacrifice that Lakshmana interrupted?",
+   "a": "Nikumbhila grove",
+   "w": [
+    "Ashoka Vatika",
+    "Trikuta peak",
+    "Suvela hill"
+   ],
+   "d": "h",
+   "e": "Completing it would have made him invincible; Vibhishana revealed the site."
+  },
+  {
+   "q": "Which dynasty did Rama belong to?",
+   "a": "The Ikshvaku (Solar) dynasty",
+   "w": [
+    "The Yadava dynasty",
+    "The Lunar dynasty",
+    "The Bharata dynasty"
+   ],
+   "d": "h",
+   "e": "Also called Raghuvamsha after his ancestor Raghu; it traces to Surya via Ikshvaku."
+  },
+  {
+   "q": "How did Sita's life end in the Uttara Kanda?",
+   "a": "The earth opened and received her",
+   "w": [
+    "She ascended in a chariot of fire",
+    "She died of old age in Ayodhya",
+    "She returned to Mithila"
+   ],
+   "d": "h",
+   "e": "Born of the earth, Sita called on her mother Bhumi, who took her back."
+  },
+  {
+   "q": "Which of Ravana's half-brothers did he drive out of Lanka?",
+   "a": "Kubera",
+   "w": [
+    "Vibhishana",
+    "Kumbhakarna",
+    "Sumali"
+   ],
+   "d": "h",
+   "e": "Ravana seized Lanka and the Pushpaka Vimana from the god of wealth."
+  },
+  {
+   "q": "Who was the physician of the vanara army who healed Lakshmana?",
+   "a": "Sushena",
+   "w": [
+    "Nala",
+    "Jambavan",
+    "Sharabha"
+   ],
+   "d": "h",
+   "e": "Sushena named the four herbs of Dronagiri that Hanuman was sent to fetch."
+  },
+  {
+   "q": "Which mountain rose from the sea to offer Hanuman rest mid-leap?",
+   "a": "Mainaka",
+   "w": [
+    "Dronagiri",
+    "Rishyamukha",
+    "Suvela"
+   ],
+   "d": "h",
+   "e": "Mainaka acted out of gratitude to Vayu; Hanuman touched it and flew on."
+  }
+ ]
+};
+
+/* ---------- tiny storage shim (degrades to memory if blocked) ---------- */
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return k in mem ? mem[k] : null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } }
+};
+
+/* ---------- deterministic PRNG (mulberry32) ---------- */
+function hash(str){
+  let h = 2166136261>>>0;
+  for (let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h>>>0;
+}
+function rng(seed){
+  let a = seed>>>0;
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a>>>15, 1 | a);
+    t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t;
+    return ((t ^ t>>>14) >>> 0) / 4294967296;
+  };
+}
+function shuffled(arr, rand){
+  const a = arr.slice();
+  for (let i=a.length-1;i>0;i--){ const j = Math.floor(rand()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+/* ---------- daily set: 2 easy, 2 medium, 1 hard ---------- */
+const PLAN = [['e',2],['m',2],['h',1]];
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function buildSet(pack, seedStr, exclude){
+  const bank = BANKS[pack];
+  const picked = [];
+  PLAN.forEach(([tier,n], idx)=>{
+    let pool = bank.filter(q => q.d===tier && !(exclude && exclude.has(q.q)));
+    if (pool.length < n){                       // bank exhausted for this tier - recycle it
+      if (exclude) bank.forEach(q => { if (q.d===tier) exclude.delete(q.q); });
+      pool = bank.filter(q=>q.d===tier);
+    }
+    const r = rng(hash(seedStr+'|'+pack+'|'+tier+'|'+idx));
+    picked.push(...shuffled(pool, r).slice(0,n));
+  });
+  if (exclude) picked.forEach(q => exclude.add(q.q));
+  const order = rng(hash(seedStr+'|'+pack+'|order'));
+  return shuffled(picked, order).map((q,i)=>{
+    const r = rng(hash(seedStr+'|'+pack+'|'+q.q+'|'+i));
+    const opts = shuffled([q.a, ...q.w], r);
+    return {q:q.q, d:q.d, e:q.e, a:q.a, opts, ai:opts.indexOf(q.a)};
+  });
+}
+
+/* ---------- state ---------- */
+const DIFFNAME = {e:'Easy', m:'Medium', h:'Hard'};
+const POINTS = {e:10, m:15, h:25};
+const MAX_DAILY = PLAN.reduce((t,[tier,n])=>t + POINTS[tier]*n, 0);
+const PACKNAME = {ramayana:'Ramayana'};
+const PACKCOLOR = {ramayana:'#9c3117'};
+let S = {pack:null, qs:[], i:0, score:0, points:0, log:[], daily:true};
+// per-pack session stats for unlimited play (resets when the page is reloaded)
+const SESSION = {};
+Object.keys(BANKS).forEach(p => SESSION[p] = {seen:new Set(), rounds:0, pts:0, correct:0, asked:0});
+
+const $ = id => document.getElementById(id);
+const show = id => { ['home','quiz','result'].forEach(s=>$(s).classList.toggle('hidden', s!==id)); };
+
+$('dateline').textContent = new Date().toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
+
+function refreshHome(){
+  Object.keys(BANKS).forEach(p=>{
+    const done = store.get('done:'+p+':'+todayKey());
+    const pts = store.get('pts:'+p+':'+todayKey());
+    const total = Number(store.get('total:'+p)) || 0;
+    const sess = SESSION[p];
+    const lines = [];
+    lines.push(done
+      ? 'Today — ' + done + ' of 5 · ' + pts + ' points' + (total ? ' · ' + total + ' in all' : '')
+      : BANKS[p].length + ' questions · ' + MAX_DAILY + ' points a round');
+    if (sess && sess.rounds) lines.push(sess.rounds + ' further round' + (sess.rounds>1?'s':'') + ' today · ' + sess.pts + ' points');
+    $('meta-'+p).textContent = lines.join('\n');
+    $('meta-'+p).style.whiteSpace = 'pre-line';
+    const db = $('daily-'+p); if (db) db.textContent = done ? 'Read today\u2019s five again' : 'Today\u2019s five';
+  });
+}
+refreshHome();
+
+document.querySelectorAll('.go').forEach(b=>{
+  b.addEventListener('click', ()=> start(b.dataset.pack, b.dataset.mode === 'daily'));
+});
+
+function start(pack, daily){
+  const sess = SESSION[pack];
+  let qs;
+  if (daily){
+    qs = buildSet(pack, todayKey());
+  } else {
+    sess.rounds++;
+    qs = buildSet(pack, 'endless-'+Date.now()+'-'+Math.random(), sess.seen);
+  }
+  S = {pack, qs, i:0, score:0, points:0, log:[], daily};
+  document.documentElement.style.setProperty('--pack', PACKCOLOR[pack]);
+  show('quiz'); render();
+}
+
+function render(){
+  const q = S.qs[S.i];
+  $('prog').style.width = (S.i/S.qs.length*100)+'%';
+  $('counter').textContent = PACKNAME[S.pack]
+    + (S.daily ? ' \u00b7 the daily five' : ' \u00b7 round ' + SESSION[S.pack].rounds)
+    + ' \u00b7 question ' + (S.i+1) + ' of ' + S.qs.length;
+  $('diff').textContent = DIFFNAME[q.d] + ' \u00b7 ' + POINTS[q.d] + ' points';
+  $('running').textContent = S.points + ' points';
+  $('qtext').textContent = q.q;
+  $('explain').classList.add('hidden');
+  $('next').classList.add('hidden');
+  const box = $('opts'); box.innerHTML = '';
+  q.opts.forEach((text, i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = '<span class="k">'+['i','ii','iii','iv'][i]+'</span><span></span>';
+    b.lastChild.textContent = text;
+    b.addEventListener('click', ()=> answer(i));
+    box.appendChild(b);
+  });
+}
+
+function answer(choice){
+  const q = S.qs[S.i];
+  const btns = [...$('opts').children];
+  btns.forEach((b,i)=>{
+    b.disabled = true;
+    if (i === q.ai) b.classList.add('correct');
+    else if (i === choice) b.classList.add('wrong');
+  });
+  const ok = choice === q.ai;
+  const pts = POINTS[q.d];
+  if (ok){ S.score++; S.points += pts; $('running').textContent = S.points + ' points'; }
+  S.log.push({q:q.q, ok, a:q.a, pts});
+  $('explain').innerHTML = '<b>' + (ok ? 'Correct \u2014 ' + pts + ' points.' : 'The answer is ' + escapeHtml(q.a) + '.') + '</b> ' + escapeHtml(q.e);
+  $('explain').classList.remove('hidden');
+  const last = S.i === S.qs.length - 1;
+  $('next').textContent = last ? 'Close the round' : 'Next question';
+  $('next').classList.remove('hidden');
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+$('next').addEventListener('click', ()=>{
+  if (S.i === S.qs.length - 1) finish();
+  else { S.i++; render(); }
+});
+
+function finish(){
+  $('prog').style.width = '100%';
+  const maxPts = S.qs.reduce((t,q)=>t + POINTS[q.d], 0);
+  $('bigscore').textContent = S.points;
+  $('subscore').textContent = S.score + ' of ' + S.qs.length + ' correct \u00b7 ' + S.points + ' of ' + maxPts + ' points';
+  const msgs = ['Begin again tomorrow; the text is patient.','A first step is still a step.','Half the path walked.','Well studied.','All but one.','Complete. Nothing was missed.'];
+  $('msg').textContent = msgs[S.score];
+  $('review').innerHTML = '';
+  S.log.forEach(r=>{
+    const row = document.createElement('div');
+    row.className = 'rrow';
+    row.innerHTML = '<span class="m '+(r.ok?'ok':'no')+'">'+(r.ok?'✓':'×')+'</span>'
+      + '<span class="q"></span>'
+      + '<span class="p'+(r.ok?' ok':'')+'">'+(r.ok?r.pts:'\u2014')+'</span>';
+    row.querySelector('.q').textContent = r.q;
+    $('review').appendChild(row);
+  });
+
+  const sess = SESSION[S.pack];
+  if (!S.daily){ sess.pts += S.points; sess.correct += S.score; sess.asked += S.qs.length; }
+
+  if (S.daily){
+    const firstPlayToday = store.get('done:'+S.pack+':'+todayKey()) === null;
+    let total = Number(store.get('total:'+S.pack)) || 0;
+    if (firstPlayToday){ total += S.points; store.set('total:'+S.pack, String(total)); }
+    store.set('pts:'+S.pack+':'+todayKey(), String(S.points));
+    store.set('done:'+S.pack+':'+todayKey(), String(S.score));
+    const prev = store.get('streak:'+S.pack);
+    const lastDay = store.get('lastday:'+S.pack);
+    const y = new Date(Date.now()-86400000);
+    const yKey = y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    let streak = 1;
+    if (lastDay === todayKey()) streak = Number(prev) || 1;
+    else if (lastDay === yKey) streak = (Number(prev)||0) + 1;
+    store.set('streak:'+S.pack, String(streak));
+    store.set('lastday:'+S.pack, todayKey());
+    $('streakline').textContent = streak + ' consecutive day' + (streak>1?'s':'') + ' of ' + PACKNAME[S.pack] + '\u2003·\u2003' + total + ' points in all\n' + 'A new five is set out at midnight.';
+  } else {
+    const bank = BANKS[S.pack].length;
+    $('streakline').textContent = sess.rounds + ' round' + (sess.rounds>1?'s':'') + ' this sitting'
+      + '\u2003·\u2003' + sess.pts + ' points\u2003·\u2003' + sess.correct + ' of ' + sess.asked + ' correct'
+      + '\u2003·\u2003' + Math.min(sess.seen.size, bank) + ' of ' + bank + ' questions seen';
+  }
+  $('again-btn').textContent = S.daily ? 'Continue \u2014 unlimited rounds' : 'Another round';
+  refreshHome();
+  show('result');
+}
+
+$('home-btn').addEventListener('click', ()=>{ refreshHome(); show('home'); });
+$('again-btn').addEventListener('click', ()=> start(S.pack, false));
+
+/* keyboard: 1-4 to answer, Enter to advance */
+document.addEventListener('keydown', e=>{
+  if ($('quiz').classList.contains('hidden')) return;
+  if (e.key >= '1' && e.key <= '4'){
+    const b = $('opts').children[+e.key - 1];
+    if (b && !b.disabled) b.click();
+  }
+  if (e.key === 'Enter' && !$('next').classList.contains('hidden')) $('next').click();
+});
+
+</script>
+</body>
+</html>

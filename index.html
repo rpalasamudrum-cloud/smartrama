@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>smartRama</title>
+<meta name="description" content="Five questions a day on the Ramayana. The same five for every reader, or unlimited rounds of your own.">
+<meta property="og:title" content="smartRama">
+<meta property="og:description" content="Five questions a day on the Ramayana.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Spectral:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3ead9; --leaf:#fbf6ea; --sunk:#ece0c9;
+    --ink:#231a12; --ink-soft:#6d5b47;
+    --rule:#d8c7a8; --rule-soft:#e6d9bf;
+    --display:"Cormorant Garamond","Hoefler Text",Garamond,"Times New Roman",serif;
+    --body:"Spectral",Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;min-height:100vh;background:var(--paper);color:var(--ink);
+    font-family:var(--body);font-size:16px;line-height:1.6;
+    display:flex;justify-content:center;padding:44px 18px 70px;
+  }
+  .wrap{width:100%;max-width:600px}
+  header{text-align:center;margin-bottom:30px}
+  .rules{border-top:1px solid var(--rule);border-bottom:3px double var(--rule);height:5px;margin-bottom:22px}
+  h1{margin:0;font-family:var(--display);font-weight:600;font-size:44px;line-height:1.05}
+  .tagline{margin-top:10px;font-size:12px;letter-spacing:.19em;text-transform:uppercase;color:#9c3117;font-weight:500}
+  .orn{display:block;margin:18px auto 0;width:132px;height:13px;color:var(--rule)}
+  .sub{
+    margin:16px auto 0;max-width:430px;font-family:var(--display);font-style:italic;
+    font-size:16px;line-height:1.55;color:var(--ink-soft);
+  }
+  .list{border-top:1px solid var(--rule)}
+  a.row{
+    display:block;text-decoration:none;color:inherit;border-bottom:1px solid var(--rule);
+    padding:24px 2px 26px;transition:background .14s;
+  }
+  a.row:hover{background:var(--sunk)}
+  a.row .bar{width:26px;height:2px;background:var(--c);margin-bottom:12px}
+  a.row h2{margin:0;font-family:var(--display);font-size:28px;font-weight:600;line-height:1.15}
+  a.row p{margin:7px 0 0;color:var(--ink-soft);font-size:14.5px;line-height:1.62;font-weight:300}
+  a.row .go{
+    margin-top:14px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    font-weight:500;color:var(--c);
+  }
+  .r{--c:#9c3117} .b{--c:#8a5a12} .x{--c:#4a4036}
+  .note{
+    margin-top:30px;font-size:13px;line-height:1.9;color:var(--ink-soft);font-weight:300;
+  }
+  .note dt{
+    float:left;clear:left;width:120px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink);font-weight:500;padding-top:4px;
+  }
+  .note dd{margin:0 0 10px 120px}
+  footer{
+    margin-top:30px;border-top:1px solid var(--rule);padding-top:16px;text-align:center;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
+  }
+  @media(max-width:520px){
+    h1{font-size:35px} a.row h2{font-size:24px}
+    .note dt{float:none;width:auto;padding-top:0} .note dd{margin-left:0;margin-bottom:14px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="rules"></div>
+    <h1>smartRama</h1>
+    <div class="tagline">five questions a day</div>
+    <svg class="orn" viewBox="0 0 132 13" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+      <path d="M0 6.5h48"/><path d="M84 6.5h48"/>
+      <path d="M66 1.2c2.6 2 4.2 3.7 4.2 5.3S68.6 10 66 11.8C63.4 10 61.8 8.1 61.8 6.5S63.4 3.2 66 1.2z"/>
+      <path d="M53.5 6.5c2.6-1.5 5.2-1.5 7.8 0-2.6 1.5-5.2 1.5-7.8 0z"/>
+      <path d="M78.5 6.5c-2.6-1.5-5.2-1.5-7.8 0 2.6 1.5 5.2 1.5 7.8 0z"/>
+    </svg>
+    <div class="sub">A small daily reading. The same five questions are set out for everyone, and a new five arrives at midnight.</div>
+  </header>
+
+  <div class="list">
+    <a class="row r" href="ramayana.html">
+      <div class="bar"></div>
+      <h2>Ramayana</h2>
+      <p>Ayodhya and Lanka, the exile and the war — Rama, Sita, Lakshmana, Hanuman, Ravana.</p>
+      <div class="go">Read today&rsquo;s five</div>
+    </a>
+  </div>
+
+  <dl class="note">
+    <dt>Marking</dt>
+    <dd>Ten points for the easy, fifteen for the middling, twenty-five for the difficult. Two of each of the first two and one of the last — seventy-five in a round.</dd>
+    <dt>The daily five</dt>
+    <dd>Fixed by the date, so every reader meets the same questions on the same day. It is the only round that counts towards your run of consecutive days.</dd>
+    <dt>Unlimited</dt>
+    <dd>Round after round, and no question returns until all fifty-five have been asked.</dd>
+  </dl>
+
+  <footer>No account · nothing recorded elsewhere · works without a connection</footer>
+</div>
+</body>
+</html>
