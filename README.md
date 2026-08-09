@@ -1,6 +1,6 @@
 # smartRama
 
-A daily five-question quiz on the **Ramayana** — 55 questions, four choices each.
+A daily five-question quiz on the **Ramayana** — four choices per question.
 
 | File | What it is |
 | --- | --- |

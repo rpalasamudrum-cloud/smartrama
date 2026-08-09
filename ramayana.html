@@ -923,7 +923,7 @@ function refreshHome(){
     const lines = [];
     lines.push(done
       ? 'Today — ' + done + ' of 5 · ' + pts + ' points' + (total ? ' · ' + total + ' in all' : '')
-      : BANKS[p].length + ' questions · ' + MAX_DAILY + ' points a round');
+      : MAX_DAILY + ' points a round');
     if (sess && sess.rounds) lines.push(sess.rounds + ' further round' + (sess.rounds>1?'s':'') + ' today · ' + sess.pts + ' points');
     $('meta-'+p).textContent = lines.join('\n');
     $('meta-'+p).style.whiteSpace = 'pre-line';
