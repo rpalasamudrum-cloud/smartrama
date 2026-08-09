@@ -166,6 +166,30 @@
   }
   .sharerow button:hover{color:var(--pack); border-bottom-color:var(--pack)}
   .sharerow .sep{color:var(--rule)}
+  /* ---- personal record ---- */
+  .recap{display:flex; gap:26px; justify-content:center; flex-wrap:wrap; margin-bottom:22px}
+  .recap div{text-align:center}
+  .recap .n{
+    font-family:var(--display); font-size:34px; font-weight:600; color:var(--pack);
+    line-height:1; font-variant-numeric:tabular-nums;
+  }
+  .recap .l{
+    margin-top:5px; font-size:10px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .hist{border-top:1px solid var(--rule-soft)}
+  .hrow{
+    display:flex; gap:12px; align-items:baseline; padding:10px 2px;
+    border-bottom:1px solid var(--rule-soft); font-size:13.5px; color:var(--ink-soft);
+    font-weight:300;
+  }
+  .hrow .d{flex:1; letter-spacing:.02em}
+  .hrow .g{flex:none; letter-spacing:.22em; color:var(--pack); font-size:12px}
+  .hrow .s{flex:none; font-variant-numeric:tabular-nums; font-size:12.5px; width:56px; text-align:right}
+  .empty{
+    text-align:center; font-family:var(--display); font-style:italic; font-size:16px;
+    color:var(--ink-soft); padding:20px 0 26px;
+  }
   .foot{
     margin-top:26px; font-size:12.5px; line-height:1.85; color:var(--ink-soft);
     font-weight:300; text-align:center; border-top:1px solid var(--rule); padding-top:18px;
@@ -205,6 +229,7 @@
         <div class="actions">
           <button class="go primary" data-pack="ramayana" data-mode="daily" id="daily-ramayana">Today&rsquo;s five</button>
           <button class="go" data-pack="ramayana" data-mode="endless">Unlimited rounds</button>
+          <button class="go" data-pack="ramayana" data-mode="record">Your record</button>
         </div>
       </div>
     </div>
@@ -224,6 +249,13 @@
     <div class="opts" id="opts"></div>
     <div class="explain hidden" id="explain"></div>
     <button class="next hidden" id="next"></button>
+  </section>
+
+  <section id="record" class="card hidden">
+    <div class="recap" id="recap"></div>
+    <div class="hist" id="hist"></div>
+    <div class="foot" id="recfoot"></div>
+    <button class="ghost" id="record-home">Return to the packs</button>
   </section>
 
   <section id="result" class="card hidden">
@@ -922,7 +954,7 @@ Object.keys(BANKS).forEach(p => SESSION[p] = {seen:new Set(), rounds:0, pts:0, c
 
 const $ = id => document.getElementById(id);
 const show = id => {
-  ['home','quiz','result'].forEach(s=>$(s).classList.toggle('hidden', s!==id));
+  ['home','quiz','result','record'].forEach(s=>$(s).classList.toggle('hidden', s!==id));
   /* the way back is offered on every screen except the start itself */
   $('backrow').classList.toggle('hidden', id === 'home');
 };
@@ -949,7 +981,9 @@ function refreshHome(){
 refreshHome();
 
 document.querySelectorAll('.go').forEach(b=>{
-  b.addEventListener('click', ()=> start(b.dataset.pack, b.dataset.mode === 'daily'));
+  b.addEventListener('click', ()=> b.dataset.mode === 'record'
+    ? showRecord(b.dataset.pack)
+    : start(b.dataset.pack, b.dataset.mode === 'daily'));
 });
 
 function start(pack, daily){
@@ -1082,6 +1116,87 @@ function finish(){
 }
 
 $('home-btn').addEventListener('click', ()=>{ refreshHome(); show('home'); });
+
+/* ---------- personal record ----------
+   Read back from the same keys the game has always written. Local only: no
+   account, nothing sent anywhere, and it disappears if the browser is cleared. */
+function history(pack){
+  const out = [];
+  let ls; try { ls = localStorage; } catch(e){ return out; }
+  for (let i = 0; i < ls.length; i++){
+    const k = ls.key(i);
+    if (!k || k.indexOf('done:' + pack + ':') !== 0) continue;
+    const day = k.slice(('done:' + pack + ':').length);
+    out.push({day, correct: Number(ls.getItem(k)) || 0,
+              pts: Number(ls.getItem('pts:' + pack + ':' + day)) || 0});
+  }
+  return out.sort((a,b)=> a.day < b.day ? 1 : -1);   /* newest first */
+}
+
+function longestRun(days){
+  const set = new Set(days), seen = new Set();
+  let best = 0;
+  for (const d of days){
+    if (seen.has(d)) continue;
+    const prev = new Date(d + 'T00:00:00');
+    prev.setDate(prev.getDate() - 1);
+    const pk = prev.getFullYear()+'-'+String(prev.getMonth()+1).padStart(2,'0')+'-'+String(prev.getDate()).padStart(2,'0');
+    if (set.has(pk)) continue;                        /* not the start of a run */
+    let run = 0, cur = new Date(d + 'T00:00:00');
+    for (;;){
+      const ck = cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
+      if (!set.has(ck)) break;
+      seen.add(ck); run++;
+      cur.setDate(cur.getDate() + 1);
+    }
+    if (run > best) best = run;
+  }
+  return best;
+}
+
+function showRecord(pack){
+  const h = history(pack);
+  const played = h.length;
+  const pts = h.reduce((t,r)=> t + r.pts, 0);
+  const best = longestRun(h.map(r=>r.day));
+  const perfect = h.filter(r=> r.correct === 5).length;
+
+  $('recap').innerHTML = '';
+  [[played,'days played'], [pts,'points'], [best,'longest run'], [perfect,'all five']]
+    .forEach(([n,l])=>{
+      const d = document.createElement('div');
+      d.innerHTML = '<div class="n"></div><div class="l"></div>';
+      d.querySelector('.n').textContent = n;
+      d.querySelector('.l').textContent = l;
+      $('recap').appendChild(d);
+    });
+
+  $('hist').innerHTML = '';
+  if (!played){
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'Nothing recorded yet. Today\u2019s five would be a start.';
+    $('hist').appendChild(e);
+  } else {
+    h.slice(0, 30).forEach(r=>{
+      const row = document.createElement('div');
+      row.className = 'hrow';
+      row.innerHTML = '<span class="d"></span><span class="g"></span><span class="s"></span>';
+      const dt = new Date(r.day + 'T00:00:00');
+      row.querySelector('.d').textContent = dt.toLocaleDateString(undefined,{weekday:'short', day:'numeric', month:'short'});
+      row.querySelector('.g').textContent = '\u25a0'.repeat(r.correct) + '\u25a1'.repeat(5 - r.correct);
+      row.querySelector('.s').textContent = r.pts;
+      $('hist').appendChild(row);
+    });
+  }
+  $('recfoot').textContent = played > 30
+    ? 'The last thirty days shown, of ' + played + '.'
+    : 'Kept on this device only \u2014 no account, and nothing sent anywhere.';
+  show('record');
+}
+
+$('record-home').addEventListener('click', ()=>{ refreshHome(); show('home'); });
+
 
 
 /* Named targets. Opened only on a click, and nothing from these services is
