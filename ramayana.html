@@ -145,6 +145,15 @@
     margin-top:18px; text-align:center; line-height:1.9;
     white-space:pre-line;   /* the streak line is written as two lines; keep the break */
   }
+  .backrow{margin:0 0 16px; text-align:center}
+  .back{
+    font:inherit; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+    font-weight:500; color:var(--ink-soft); background:none; cursor:pointer;
+    border:0; border-bottom:1px solid var(--rule); border-radius:0;
+    padding:2px 1px; transition:color .14s, border-color .14s;
+  }
+  .back:hover{color:var(--ink); border-bottom-color:var(--ink)}
+  .back:focus-visible{outline:1px solid var(--pack); outline-offset:3px}
   .foot{
     margin-top:26px; font-size:12.5px; line-height:1.85; color:var(--ink-soft);
     font-weight:300; text-align:center; border-top:1px solid var(--rule); padding-top:18px;
@@ -170,6 +179,10 @@
     </svg>
     <div class="sub" id="dateline"></div>
   </header>
+
+  <div class="backrow hidden" id="backrow">
+    <button class="back" id="back" type="button">Back to the start</button>
+  </div>
 
   <section id="home">
     <div class="packs">
@@ -892,7 +905,12 @@ const SESSION = {};
 Object.keys(BANKS).forEach(p => SESSION[p] = {seen:new Set(), rounds:0, pts:0, correct:0, asked:0});
 
 const $ = id => document.getElementById(id);
-const show = id => { ['home','quiz','result'].forEach(s=>$(s).classList.toggle('hidden', s!==id)); };
+const show = id => {
+  ['home','quiz','result'].forEach(s=>$(s).classList.toggle('hidden', s!==id));
+  /* the way back is offered on every screen except the start itself */
+  $('backrow').classList.toggle('hidden', id === 'home');
+};
+$('back').addEventListener('click', ()=> show('home'));
 
 $('dateline').textContent = new Date().toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
 
@@ -1032,6 +1050,7 @@ $('again-btn').addEventListener('click', ()=> start(S.pack, false));
 
 /* keyboard: 1-4 to answer, Enter to advance */
 document.addEventListener('keydown', e=>{
+  if (e.key === 'Escape' && !$('backrow').classList.contains('hidden')){ show('home'); return; }
   if ($('quiz').classList.contains('hidden')) return;
   if (e.key >= '1' && e.key <= '4'){
     const b = $('opts').children[+e.key - 1];
