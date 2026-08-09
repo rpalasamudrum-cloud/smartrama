@@ -1,15 +1,16 @@
 # smartRama
 
-A daily five-question quiz on the **Ramayana** — four choices per question.
+A daily five-question quiz with two packs, **Ramayana** and **Bollywood** — four choices per question.
 
 | File | What it is |
 | --- | --- |
 | `index.html` | Landing page |
 | `ramayana.html` | The Ramayana pack |
+| `bollywood.html` | The Bollywood pack |
 
 Every file is fully self-contained: no build step, no dependencies, no server code. Open one in a browser and it works, online or off. The only network request is a Google Fonts stylesheet, which falls back to Georgia if it can't be reached.
 
-A second pack, **Bollywood**, is written and working but held back from publication pending a fact-check of its dates and award years.
+Both packs are published. The Bollywood bank's dates, award years and superlative claims were checked against sources on 9 August 2026; the notes are in `held-back-bollywood/README.md` in the working directory.
 
 ## How the game works
 

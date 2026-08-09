@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bollywood — smartRama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Spectral:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  .pack h3::before{display:none}
+  :root{
+    --paper:#f3ead9; --leaf:#fbf6ea; --sunk:#ece0c9;
+    --ink:#231a12; --ink-soft:#6d5b47; --ink-muted:#8d7a63;
+    --rule:#d8c7a8; --rule-soft:#e6d9bf;
+    --pack:#8a5a12;
+    --display:"Cormorant Garamond","Hoefler Text",Garamond,"Times New Roman",serif;
+    --body:"Spectral",Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; min-height:100vh; background:var(--paper); color:var(--ink);
+    font-family:var(--body); font-weight:400; font-size:16px; line-height:1.6;
+    display:flex; justify-content:center; padding:38px 18px 70px;
+  }
+  .wrap{width:100%; max-width:600px}
+
+  /* ---- masthead ---- */
+  header{text-align:center; margin-bottom:26px}
+  .rules{border-top:1px solid var(--rule); border-bottom:3px double var(--rule); height:5px; margin-bottom:20px}
+  h1{
+    margin:0; font-family:var(--display); font-weight:600; font-size:40px; line-height:1.05;
+    letter-spacing:.01em;
+  }
+  .tagline{
+    margin-top:9px; font-size:12px; letter-spacing:.19em; text-transform:uppercase;
+    color:var(--pack); font-weight:500;
+  }
+  .orn{display:block; margin:16px auto 0; width:132px; height:13px; color:var(--rule)}
+  .sub{margin-top:14px; font-size:13px; color:var(--ink-soft); font-style:italic; font-family:var(--display); letter-spacing:.02em}
+
+  /* ---- pack list ---- */
+  .packs{display:grid; gap:0; border-top:1px solid var(--rule)}
+  .pack{
+    border-bottom:1px solid var(--rule); padding:22px 2px 24px;
+    display:flex; flex-direction:column;
+  }
+  .pack[data-pack="bollywood"]{--c:#8a5a12}
+  .pack h3{
+    margin:0; font-family:var(--display); font-size:27px; font-weight:600; line-height:1.15;
+  }
+  .pack h3::before{
+    content:""; display:block; width:26px; height:2px; background:var(--c); margin-bottom:11px;
+  }
+  .pack p{margin:7px 0 0; color:var(--ink-soft); font-size:14.5px; line-height:1.62; font-weight:300}
+  .pack .meta{
+    margin-top:12px; font-size:11.5px; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--ink-soft); min-height:15px;
+  }
+  .actions{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
+  .go{
+    font:inherit; font-size:11.5px; letter-spacing:.15em; text-transform:uppercase; font-weight:500;
+    padding:11px 17px; cursor:pointer; border:1px solid var(--ink); background:transparent;
+    color:var(--ink); border-radius:1px; transition:background .14s,color .14s;
+  }
+  .go:hover{background:var(--sunk)}
+  .go.primary{background:var(--c); border-color:var(--c); color:var(--leaf)}
+  .go.primary:hover{background:var(--ink); border-color:var(--ink)}
+
+  /* ---- quiz sheet ---- */
+  .card{background:var(--leaf); border:1px solid var(--rule); border-radius:2px; padding:26px 26px 28px}
+  .bar{height:2px; background:var(--rule-soft); margin-bottom:20px}
+  .bar i{display:block; height:100%; background:var(--pack); width:0; transition:width .35s}
+  .topline{
+    display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+    font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-soft);
+    border-bottom:1px solid var(--rule-soft); padding-bottom:9px; margin-bottom:20px;
+  }
+  .chip{white-space:nowrap}
+  .chip.pts{color:var(--pack); font-weight:500}
+  .chip.run{font-variant-numeric:tabular-nums}
+  .qtext{
+    font-family:var(--display); font-size:26px; line-height:1.32; font-weight:500;
+    margin:0 0 22px; letter-spacing:.005em;
+  }
+  .opts{display:grid; gap:0; border-top:1px solid var(--rule-soft)}
+  .opt{
+    text-align:left; font:inherit; font-size:16.5px; color:var(--ink); cursor:pointer; width:100%;
+    padding:14px 12px 14px 10px; background:transparent; border:0;
+    border-bottom:1px solid var(--rule-soft); border-left:3px solid transparent;
+    display:flex; gap:14px; align-items:baseline; transition:background .12s;
+  }
+  .opt:hover:not(:disabled){background:var(--sunk)}
+  .opt:disabled{cursor:default}
+  .opt .k{
+    flex:none; width:19px; font-family:var(--display); font-size:15px; font-style:italic;
+    color:var(--ink-soft); letter-spacing:.02em;
+  }
+  .opt.correct{border-left-color:#4a6b34; background:rgba(74,107,52,.09)}
+  .opt.correct .k{color:#3d5a2b; font-style:normal; font-weight:600}
+  .opt.wrong{border-left-color:#9c3117; background:rgba(156,49,23,.07)}
+  .opt.wrong .k{color:#9c3117; font-style:normal; font-weight:600}
+  .explain{
+    margin-top:22px; padding:16px 18px; background:var(--sunk); border-left:3px solid var(--pack);
+    font-size:14.5px; line-height:1.66; color:var(--ink-soft); font-weight:300;
+  }
+  .explain b{color:var(--ink); font-weight:500}
+  button.next{
+    margin-top:22px; width:100%; padding:14px; font:inherit; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; font-weight:500; cursor:pointer; border:1px solid var(--ink);
+    border-radius:1px; background:var(--ink); color:var(--leaf);
+  }
+  button.next:hover{background:transparent; color:var(--ink)}
+  button.ghost{
+    margin-top:10px; width:100%; padding:12px; font:inherit; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; cursor:pointer; border:1px solid var(--rule); border-radius:1px;
+    background:transparent; color:var(--ink-soft);
+  }
+  button.ghost:hover{border-color:var(--ink); color:var(--ink)}
+
+  /* ---- result ---- */
+  .score{text-align:center; padding-bottom:6px}
+  .score .big{
+    font-family:var(--display); font-size:62px; font-weight:600; color:var(--pack);
+    line-height:1; font-variant-numeric:tabular-nums;
+  }
+  .score .sub2{font-size:14px; margin-top:8px; letter-spacing:.02em}
+  .score .msg{
+    color:var(--ink-soft); font-family:var(--display); font-style:italic; font-size:17px;
+    margin:10px 0 22px;
+  }
+  .review{display:grid; gap:0; text-align:left; border-top:1px solid var(--rule-soft); margin-bottom:6px}
+  .rrow{
+    display:flex; gap:12px; align-items:baseline; font-size:14px; padding:11px 2px;
+    border-bottom:1px solid var(--rule-soft); color:var(--ink-soft); font-weight:300;
+  }
+  .rrow .m{flex:none; width:13px; font-weight:500}
+  .rrow .m.ok{color:#4a6b34} .rrow .m.no{color:#9c3117}
+  .rrow .q{flex:1; line-height:1.5}
+  .rrow .p{flex:none; font-variant-numeric:tabular-nums; letter-spacing:.04em; font-size:12.5px}
+  .rrow .p.ok{color:var(--pack); font-weight:500}
+  .streak{
+    font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-soft);
+    margin-top:18px; text-align:center; line-height:1.9;
+    white-space:pre-line;   /* the streak line is written as two lines; keep the break */
+  }
+  .backrow{margin:0 0 16px; text-align:center}
+  .back{
+    font:inherit; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+    font-weight:500; color:var(--ink-soft); background:none; cursor:pointer;
+    border:0; border-bottom:1px solid var(--rule); border-radius:0;
+    padding:2px 1px; transition:color .14s, border-color .14s;
+  }
+  .back:hover{color:var(--ink); border-bottom-color:var(--ink)}
+  .back:focus-visible{outline:1px solid var(--pack); outline-offset:3px}
+  .sharerow{
+    display:none; gap:0; margin-top:10px; text-align:center;
+    font-size:10.5px; letter-spacing:.15em; text-transform:uppercase;
+  }
+  .sharerow.on{display:block}
+  .sharerow button{
+    font:inherit; font-size:inherit; letter-spacing:inherit; text-transform:inherit;
+    font-weight:500; background:none; border:0; cursor:pointer; color:var(--ink-soft);
+    padding:4px 9px; border-bottom:1px solid transparent;
+  }
+  .sharerow button:hover{color:var(--pack); border-bottom-color:var(--pack)}
+  .sharerow .sep{color:var(--rule)}
+  /* ---- personal record ---- */
+  .recap{display:flex; gap:26px; justify-content:center; flex-wrap:wrap; margin-bottom:22px}
+  .recap div{text-align:center}
+  .recap .n{
+    font-family:var(--display); font-size:34px; font-weight:600; color:var(--pack);
+    line-height:1; font-variant-numeric:tabular-nums;
+  }
+  .recap .l{
+    margin-top:5px; font-size:10px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .hist{border-top:1px solid var(--rule-soft)}
+  .hrow{
+    display:flex; gap:12px; align-items:baseline; padding:10px 2px;
+    border-bottom:1px solid var(--rule-soft); font-size:13.5px; color:var(--ink-soft);
+    font-weight:300;
+  }
+  .hrow .d{flex:1; letter-spacing:.02em}
+  .hrow .g{flex:none; letter-spacing:.22em; color:var(--pack); font-size:12px}
+  .hrow .s{flex:none; font-variant-numeric:tabular-nums; font-size:12.5px; width:56px; text-align:right}
+  .empty{
+    text-align:center; font-family:var(--display); font-style:italic; font-size:16px;
+    color:var(--ink-soft); padding:20px 0 26px;
+  }
+  .copy{display:inline-block; margin-top:7px; color:var(--ink-muted); font-size:11.5px}
+  .tally{
+    display:none; margin-top:9px; font-family:var(--display); font-style:italic;
+    font-size:14.5px; color:var(--ink-soft); letter-spacing:.01em;
+  }
+  .tally.on{display:block}
+  .tally b{font-style:normal; font-weight:500; color:var(--pack); font-variant-numeric:tabular-nums}
+  .foot{
+    margin-top:26px; font-size:12.5px; line-height:1.85; color:var(--ink-soft);
+    font-weight:300; text-align:center; border-top:1px solid var(--rule); padding-top:18px;
+  }
+  .foot b{font-weight:500; color:var(--ink)}
+  .hidden{display:none}
+  @media(max-width:520px){
+    h1{font-size:33px} .qtext{font-size:22px} .card{padding:22px 18px 24px} .score .big{font-size:52px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="rules"></div>
+    <h1>smartRama</h1>
+    <div class="tagline">hindi cinema · five a day</div>
+    <svg class="orn" viewBox="0 0 132 13" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+      <path d="M0 6.5h48"/><path d="M84 6.5h48"/>
+      <path d="M66 1.2c2.6 2 4.2 3.7 4.2 5.3S68.6 10 66 11.8C63.4 10 61.8 8.1 61.8 6.5S63.4 3.2 66 1.2z"/>
+      <path d="M53.5 6.5c2.6-1.5 5.2-1.5 7.8 0-2.6 1.5-5.2 1.5-7.8 0z"/>
+      <path d="M78.5 6.5c-2.6-1.5-5.2-1.5-7.8 0 2.6 1.5 5.2 1.5 7.8 0z"/>
+    </svg>
+    <div class="sub" id="dateline"></div>
+  </header>
+
+  <div class="backrow hidden" id="backrow">
+    <button class="back" id="back" type="button">Back to the start</button>
+  </div>
+
+  <section id="home">
+    <div class="packs">
+      <div class="pack" data-pack="bollywood">
+        <h3>Bollywood</h3>
+        <p>From Raja Harishchandra to the multiplex era — the films, the songs, the players.</p>
+        <div class="meta" id="meta-bollywood"></div>
+        <div class="actions">
+          <button class="go primary" data-pack="bollywood" data-mode="daily" id="daily-bollywood">Today&rsquo;s five</button>
+          <button class="go" data-pack="bollywood" data-mode="endless">Unlimited rounds</button>
+          <button class="go" data-pack="bollywood" data-mode="record">Your record</button>
+        </div>
+      </div>
+    </div>
+    <div class="tally" id="tally"></div>
+    <div class="foot">
+      <b>Ten points</b> for the easy, <b>fifteen</b> for the middling, <b>twenty-five</b> for the difficult — seventy-five in a round.<br>
+      The five of the day are the same five for every reader. The unlimited rounds are yours alone.<br>
+      <span id="privacy"></span><br>
+      <span class="copy">© 2026 Raj Palasamudrum · all rights reserved</span>
+    </div>
+  </section>
+
+  <section id="quiz" class="card hidden">
+    <div class="bar"><i id="prog"></i></div>
+    <div class="topline">
+      <span id="counter"></span>
+      <span><span class="chip run" id="running"></span> &nbsp;&middot;&nbsp; <span class="chip pts" id="diff"></span></span>
+    </div>
+    <div class="qtext" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+    <div class="explain hidden" id="explain"></div>
+    <button class="next hidden" id="next"></button>
+  </section>
+
+  <section id="record" class="card hidden">
+    <div class="recap" id="recap"></div>
+    <div class="hist" id="hist"></div>
+    <div class="foot" id="recfoot"></div>
+    <button class="ghost" id="record-home">Return to the packs</button>
+  </section>
+
+  <section id="result" class="card hidden">
+    <div class="score">
+      <div class="big" id="bigscore"></div>
+      <div class="sub2" id="subscore"></div>
+      <div class="msg" id="msg"></div>
+    </div>
+    <div class="review" id="review"></div>
+    <div class="streak" id="streakline"></div>
+    <button class="next" id="again-btn"></button>
+    <button class="ghost hidden" id="share-btn">Share today’s five</button>
+    <div class="sharerow" id="sharerow">
+      <button type="button" data-to="whatsapp">WhatsApp</button><span class="sep">·</span><button type="button" data-to="x">X</button><span class="sep">·</span><button type="button" data-to="telegram">Telegram</button><span class="sep">·</span><button type="button" data-to="copy">Copy</button>
+    </div>
+    <button class="ghost" id="home-btn">Return to the packs</button>
+  </section>
+</div>
+
+<script>
+const BANKS = {
+ "bollywood": [
+  {
+   "q": "Which actor is nicknamed 'King Khan' and 'Badshah of Bollywood'?",
+   "a": "Shah Rukh Khan",
+   "w": [
+    "Salman Khan",
+    "Aamir Khan",
+    "Saif Ali Khan"
+   ],
+   "d": "e",
+   "e": "His breakout came with Baazigar and Darr in 1993, both playing the antagonist."
+  },
+  {
+   "q": "What does 'DDLJ' stand for?",
+   "a": "Dilwale Dulhania Le Jayenge",
+   "w": [
+    "Dil Deke Ladki Jeeti",
+    "Dulhan Dilwale Le Jayenge",
+    "Dilwale Dulhaniya Le Jaana"
+   ],
+   "d": "e",
+   "e": "The 1995 film starring Shah Rukh Khan and Kajol, directed by Aditya Chopra."
+  },
+  {
+   "q": "Who is the villain in Sholay?",
+   "a": "Gabbar Singh",
+   "w": [
+    "Mogambo",
+    "Shakaal",
+    "Kancha Cheena"
+   ],
+   "d": "e",
+   "e": "Played by Amjad Khan; Mogambo was Amrish Puri in Mr. India."
+  },
+  {
+   "q": "Which actor is known as 'Big B'?",
+   "a": "Amitabh Bachchan",
+   "w": [
+    "Dharmendra",
+    "Rajesh Khanna",
+    "Dilip Kumar"
+   ],
+   "d": "e",
+   "e": "He also hosts the Indian version of Who Wants to Be a Millionaire, Kaun Banega Crorepati."
+  },
+  {
+   "q": "Which Aamir Khan film follows three engineering students and the phrase 'All Izz Well'?",
+   "a": "3 Idiots",
+   "w": [
+    "Taare Zameen Par",
+    "PK",
+    "Rang De Basanti"
+   ],
+   "d": "e",
+   "e": "Directed by Rajkumar Hirani, released in 2009."
+  },
+  {
+   "q": "Which 2001 Aamir Khan film centres on a village cricket match against British officers?",
+   "a": "Lagaan",
+   "w": [
+    "Swades",
+    "Iqbal",
+    "Jodhaa Akbar"
+   ],
+   "d": "e",
+   "e": "Directed by Ashutosh Gowariker; nominated for the Best Foreign Language Film Oscar."
+  },
+  {
+   "q": "Which singer was called the 'Nightingale of India'?",
+   "a": "Lata Mangeshkar",
+   "w": [
+    "Asha Bhosle",
+    "Geeta Dutt",
+    "Shreya Ghoshal"
+   ],
+   "d": "e",
+   "e": "Her career spanned seven decades; Asha Bhosle is her younger sister."
+  },
+  {
+   "q": "Where does the word 'Bollywood' come from?",
+   "a": "Bombay + Hollywood",
+   "w": [
+    "Bengali + Hollywood",
+    "Bharat + Hollywood",
+    "Bollywood Studios, Mumbai"
+   ],
+   "d": "e",
+   "e": "It refers specifically to the Hindi-language film industry based in Mumbai."
+  },
+  {
+   "q": "Which composer won two Academy Awards for Slumdog Millionaire?",
+   "a": "A.R. Rahman",
+   "w": [
+    "Ilaiyaraaja",
+    "Shankar Mahadevan",
+    "Pritam"
+   ],
+   "d": "e",
+   "e": "Best Original Score and Best Original Song for 'Jai Ho' in 2009."
+  },
+  {
+   "q": "In Sholay, what are the two heroes called?",
+   "a": "Jai and Veeru",
+   "w": [
+    "Vijay and Ravi",
+    "Raj and Rahul",
+    "Amar and Anthony"
+   ],
+   "d": "e",
+   "e": "Played by Amitabh Bachchan and Dharmendra."
+  },
+  {
+   "q": "Which 2016 Aamir Khan film is about a father training his daughters to wrestle?",
+   "a": "Dangal",
+   "w": [
+    "Sultan",
+    "Chak De! India",
+    "Mary Kom"
+   ],
+   "d": "e",
+   "e": "Based on Mahavir Singh Phogat and his daughters Geeta and Babita."
+  },
+  {
+   "q": "Which 1957 epic starring Nargis is one of Indian cinema's most famous films?",
+   "a": "Mother India",
+   "w": [
+    "Pyaasa",
+    "Naya Daur",
+    "Awara"
+   ],
+   "d": "e",
+   "e": "Directed by Mehboob Khan; the first Indian film nominated for an Oscar."
+  },
+  {
+   "q": "Which 1960 epic features the song 'Pyar Kiya To Darna Kya'?",
+   "a": "Mughal-e-Azam",
+   "w": [
+    "Anarkali",
+    "Umrao Jaan",
+    "Pakeezah"
+   ],
+   "d": "e",
+   "e": "K. Asif's film starred Prithviraj Kapoor, Dilip Kumar and Madhubala."
+  },
+  {
+   "q": "Which three actors are collectively called 'the Khans' of Bollywood?",
+   "a": "Shah Rukh, Salman and Aamir",
+   "w": [
+    "Shah Rukh, Saif and Aamir",
+    "Salman, Saif and Irrfan",
+    "Aamir, Irrfan and Emraan"
+   ],
+   "d": "e",
+   "e": "All three were born in 1965 and rose to fame in the early 1990s."
+  },
+  {
+   "q": "Which 1998 film marked Karan Johar's debut as a director?",
+   "a": "Kuch Kuch Hota Hai",
+   "w": [
+    "Kabhi Khushi Kabhie Gham",
+    "Kal Ho Naa Ho",
+    "Student of the Year"
+   ],
+   "d": "e",
+   "e": "It starred Shah Rukh Khan, Kajol and Rani Mukerji."
+  },
+  {
+   "q": "Which playback singer was famous for yodelling and songs like 'Mere Sapno Ki Rani'?",
+   "a": "Kishore Kumar",
+   "w": [
+    "Mohammed Rafi",
+    "Mukesh",
+    "Manna Dey"
+   ],
+   "d": "e",
+   "e": "He was also an actor, composer and director, and never trained formally in music."
+  },
+  {
+   "q": "Which director is known for lavish period spectacles like Devdas and Padmaavat?",
+   "a": "Sanjay Leela Bhansali",
+   "w": [
+    "Karan Johar",
+    "Rohit Shetty",
+    "Imtiaz Ali"
+   ],
+   "d": "e",
+   "e": "He also directed Bajirao Mastani, Ram-Leela and Black."
+  },
+  {
+   "q": "Which Indian song won the Academy Award for Best Original Song in 2023?",
+   "a": "'Naatu Naatu' from RRR",
+   "w": [
+    "'Jai Ho' from Slumdog Millionaire",
+    "'Chaiyya Chaiyya' from Dil Se",
+    "'Dola Re Dola' from Devdas"
+   ],
+   "d": "e",
+   "e": "Composed by M.M. Keeravani with lyrics by Chandrabose, for S.S. Rajamouli's Telugu film."
+  },
+  {
+   "q": "Which superhero franchise stars Hrithik Roshan?",
+   "a": "Krrish",
+   "w": [
+    "Ra.One",
+    "Drona",
+    "Shaktimaan"
+   ],
+   "d": "e",
+   "e": "It began with Koi... Mil Gaya in 2003, directed by his father Rakesh Roshan."
+  },
+  {
+   "q": "Which actress won Miss World 1994 before her film career?",
+   "a": "Aishwarya Rai",
+   "w": [
+    "Sushmita Sen",
+    "Priyanka Chopra",
+    "Lara Dutta"
+   ],
+   "d": "e",
+   "e": "Sushmita Sen won Miss Universe the same year; Priyanka Chopra won Miss World in 2000."
+  },
+  {
+   "q": "Which filmmaker-actor was called 'the Showman' of Indian cinema?",
+   "a": "Raj Kapoor",
+   "w": [
+    "Guru Dutt",
+    "Bimal Roy",
+    "Mehboob Khan"
+   ],
+   "d": "m",
+   "e": "Awara and Shree 420 made him a star as far away as the Soviet Union."
+  },
+  {
+   "q": "Which screenwriting duo wrote Sholay, Deewaar and Zanjeer?",
+   "a": "Salim-Javed",
+   "w": [
+    "Laxmikant-Pyarelal",
+    "Abbas-Mustan",
+    "Anand-Milind"
+   ],
+   "d": "m",
+   "e": "Salim Khan and Javed Akhtar defined the 'angry young man' era."
+  },
+  {
+   "q": "Which film gave Amitabh Bachchan his 'angry young man' breakthrough in 1973?",
+   "a": "Zanjeer",
+   "w": [
+    "Deewaar",
+    "Sholay",
+    "Anand"
+   ],
+   "d": "m",
+   "e": "Written by Salim-Javed and directed by Prakash Mehra."
+  },
+  {
+   "q": "Which composer was nicknamed 'Pancham'?",
+   "a": "R.D. Burman",
+   "w": [
+    "S.D. Burman",
+    "Naushad",
+    "Madan Mohan"
+   ],
+   "d": "m",
+   "e": "Rahul Dev Burman, son of composer S.D. Burman, redefined Hindi film music in the 1970s."
+  },
+  {
+   "q": "Which actress is nicknamed the 'Dhak Dhak girl'?",
+   "a": "Madhuri Dixit",
+   "w": [
+    "Sridevi",
+    "Juhi Chawla",
+    "Karisma Kapoor"
+   ],
+   "d": "m",
+   "e": "After 'Dhak Dhak Karne Laga' from Beta (1992)."
+  },
+  {
+   "q": "Which dance number from Tezaab became a defining 1980s hit?",
+   "a": "'Ek Do Teen'",
+   "w": [
+    "'Choli Ke Peeche'",
+    "'Hawa Hawai'",
+    "'Mere Angne Mein'"
+   ],
+   "d": "m",
+   "e": "Madhuri Dixit's performance turned her into a star overnight."
+  },
+  {
+   "q": "What was Dilip Kumar's birth name?",
+   "a": "Mohammed Yusuf Khan",
+   "w": [
+    "Yusuf Ali Sheikh",
+    "Mohammed Ali Khan",
+    "Yusuf Abbas"
+   ],
+   "d": "m",
+   "e": "Known as the 'Tragedy King' for films like Devdas and Mughal-e-Azam."
+  },
+  {
+   "q": "Who directed Dilwale Dulhania Le Jayenge?",
+   "a": "Aditya Chopra",
+   "w": [
+    "Yash Chopra",
+    "Karan Johar",
+    "Sooraj Barjatya"
+   ],
+   "d": "m",
+   "e": "It was his directorial debut, made at 23; his father Yash Chopra produced it."
+  },
+  {
+   "q": "Which Mumbai cinema ran DDLJ for an extraordinary number of years?",
+   "a": "Maratha Mandir",
+   "w": [
+    "Regal",
+    "Liberty",
+    "Eros"
+   ],
+   "d": "m",
+   "e": "It became the longest-running film in Indian cinema history there."
+  },
+  {
+   "q": "Who directed the Munna Bhai films, 3 Idiots and PK?",
+   "a": "Rajkumar Hirani",
+   "w": [
+    "Ashutosh Gowariker",
+    "Vidhu Vinod Chopra",
+    "Anurag Kashyap"
+   ],
+   "d": "m",
+   "e": "Vidhu Vinod Chopra produced several of them."
+  },
+  {
+   "q": "Which 2019 film about a Mumbai street rapper starred Ranveer Singh?",
+   "a": "Gully Boy",
+   "w": [
+    "Sacred Games",
+    "Udaan",
+    "Bombay Velvet"
+   ],
+   "d": "m",
+   "e": "Directed by Zoya Akhtar and inspired by rappers Divine and Naezy."
+  },
+  {
+   "q": "Which 2014 film about a woman honeymooning alone won Kangana Ranaut wide acclaim?",
+   "a": "Queen",
+   "w": [
+    "Tanu Weds Manu",
+    "Fashion",
+    "Piku"
+   ],
+   "d": "m",
+   "e": "Directed by Vikas Bahl, set in Paris and Amsterdam."
+  },
+  {
+   "q": "Which 2018 Ranbir Kapoor film was a biopic of Sanjay Dutt?",
+   "a": "Sanju",
+   "w": [
+    "Rockstar",
+    "Barfi!",
+    "Tamasha"
+   ],
+   "d": "m",
+   "e": "Directed by Rajkumar Hirani."
+  },
+  {
+   "q": "Which song is famously picturised on top of a moving train?",
+   "a": "'Chaiyya Chaiyya' from Dil Se",
+   "w": [
+    "'Jai Ho' from Slumdog Millionaire",
+    "'Kajra Re' from Bunty Aur Babli",
+    "'Malhari' from Bajirao Mastani"
+   ],
+   "d": "m",
+   "e": "Composed by A.R. Rahman, choreographed by Farah Khan, filmed in the Nilgiris."
+  },
+  {
+   "q": "Which lyricist shared the Oscar for 'Jai Ho'?",
+   "a": "Gulzar",
+   "w": [
+    "Javed Akhtar",
+    "Prasoon Joshi",
+    "Irshad Kamil"
+   ],
+   "d": "m",
+   "e": "He shared Best Original Song with A.R. Rahman in 2009."
+  },
+  {
+   "q": "Which film studio was founded by Yash Chopra?",
+   "a": "Yash Raj Films",
+   "w": [
+    "Dharma Productions",
+    "Rajshri Productions",
+    "Excel Entertainment"
+   ],
+   "d": "m",
+   "e": "Dharma was founded by Yash Johar, Karan Johar's father."
+  },
+  {
+   "q": "Which actor played the villain Mogambo in Mr. India?",
+   "a": "Amrish Puri",
+   "w": [
+    "Amjad Khan",
+    "Pran",
+    "Danny Denzongpa"
+   ],
+   "d": "m",
+   "e": "'Mogambo khush hua' became one of Hindi cinema's most quoted lines."
+  },
+  {
+   "q": "Which 2002 Sanjay Leela Bhansali film starred Shah Rukh Khan and Aishwarya Rai?",
+   "a": "Devdas",
+   "w": [
+    "Hum Dil De Chuke Sanam",
+    "Veer-Zaara",
+    "Mohabbatein"
+   ],
+   "d": "m",
+   "e": "An adaptation of Sarat Chandra Chattopadhyay's novel, screened at Cannes."
+  },
+  {
+   "q": "Which actress married Abhishek Bachchan in 2007?",
+   "a": "Aishwarya Rai",
+   "w": [
+    "Rani Mukerji",
+    "Karisma Kapoor",
+    "Kajol"
+   ],
+   "d": "m",
+   "e": "They had co-starred in films including Guru and Dhoom 2."
+  },
+  {
+   "q": "Which 1975 film sees Amitabh Bachchan and Shashi Kapoor as brothers on opposite sides of the law?",
+   "a": "Deewaar",
+   "w": [
+    "Trishul",
+    "Kaala Patthar",
+    "Shakti"
+   ],
+   "d": "m",
+   "e": "Source of the line 'Mere paas maa hai'."
+  },
+  {
+   "q": "Which actor-director made Pyaasa and Kaagaz Ke Phool?",
+   "a": "Guru Dutt",
+   "w": [
+    "Bimal Roy",
+    "Raj Kapoor",
+    "Chetan Anand"
+   ],
+   "d": "m",
+   "e": "Both are now considered classics, though Kaagaz Ke Phool flopped on release."
+  },
+  {
+   "q": "Which 1977 Manmohan Desai film features three brothers separated at birth and raised in different faiths?",
+   "a": "Amar Akbar Anthony",
+   "w": [
+    "Naseeb",
+    "Dharam Veer",
+    "Yaadon Ki Baaraat"
+   ],
+   "d": "m",
+   "e": "Starring Vinod Khanna, Rishi Kapoor and Amitabh Bachchan."
+  },
+  {
+   "q": "Which 1913 film is regarded as India's first full-length feature?",
+   "a": "Raja Harishchandra",
+   "w": [
+    "Alam Ara",
+    "Kisan Kanya",
+    "Pundalik"
+   ],
+   "d": "h",
+   "e": "Made by Dadasaheb Phalke, after whom India's highest film honour is named."
+  },
+  {
+   "q": "Which 1931 film was India's first sound feature?",
+   "a": "Alam Ara",
+   "w": [
+    "Raja Harishchandra",
+    "Devdas",
+    "Achhut Kanya"
+   ],
+   "d": "h",
+   "e": "Directed by Ardeshir Irani; no complete print is known to survive."
+  },
+  {
+   "q": "Who was the first Indian to win a competitive Academy Award?",
+   "a": "Bhanu Athaiya",
+   "w": [
+    "Satyajit Ray",
+    "A.R. Rahman",
+    "Resul Pookutty"
+   ],
+   "d": "h",
+   "e": "She shared Best Costume Design for Gandhi with John Mollo in 1983; Ray's 1992 Oscar was honorary."
+  },
+  {
+   "q": "Which Indian filmmaker received an honorary Academy Award in 1992?",
+   "a": "Satyajit Ray",
+   "w": [
+    "Guru Dutt",
+    "Ritwik Ghatak",
+    "Mrinal Sen"
+   ],
+   "d": "h",
+   "e": "Awarded weeks before his death, for lifetime achievement."
+  },
+  {
+   "q": "Which Satyajit Ray film opened the Apu Trilogy in 1955?",
+   "a": "Pather Panchali",
+   "w": [
+    "Aparajito",
+    "Apur Sansar",
+    "Charulata"
+   ],
+   "d": "h",
+   "e": "A Bengali film that brought Indian cinema international attention."
+  },
+  {
+   "q": "Who won the Oscar for sound mixing on Slumdog Millionaire?",
+   "a": "Resul Pookutty",
+   "w": [
+    "A.R. Rahman",
+    "Gulzar",
+    "Sound designer Amrit Pritam"
+   ],
+   "d": "h",
+   "e": "He shared the award with Ian Tapp and Richard Pryke in 2009."
+  },
+  {
+   "q": "Which three Indian films have been nominated for the Best Foreign Language Film Oscar?",
+   "a": "Mother India, Salaam Bombay! and Lagaan",
+   "w": [
+    "Mother India, Devdas and Lagaan",
+    "Pather Panchali, Sholay and Lagaan",
+    "Awara, Mother India and Swades"
+   ],
+   "d": "h",
+   "e": "In 1958, 1989 and 2002 respectively — none has won."
+  },
+  {
+   "q": "Which 1959 Guru Dutt film was India's first in CinemaScope?",
+   "a": "Kaagaz Ke Phool",
+   "w": [
+    "Pyaasa",
+    "Chaudhvin Ka Chand",
+    "Sahib Bibi Aur Ghulam"
+   ],
+   "d": "h",
+   "e": "It failed commercially and he never took a director's credit again."
+  },
+  {
+   "q": "In which year were the Filmfare Awards first held?",
+   "a": "1954",
+   "w": [
+    "1947",
+    "1962",
+    "1970"
+   ],
+   "d": "h",
+   "e": "The trophy, designed by N.G. Pansare, is known as the Black Lady."
+  },
+  {
+   "q": "Which director made Do Bigha Zamin and Madhumati?",
+   "a": "Bimal Roy",
+   "w": [
+    "Hrishikesh Mukherjee",
+    "Guru Dutt",
+    "V. Shantaram"
+   ],
+   "d": "h",
+   "e": "A leading figure of socially conscious 1950s cinema; Hrishikesh Mukherjee edited for him."
+  },
+  {
+   "q": "Sholay's original ending, cut before release, had Thakur do what?",
+   "a": "Kill Gabbar Singh himself",
+   "w": [
+    "Die alongside Jai",
+    "Spare Gabbar and walk away",
+    "Regain the use of his arms"
+   ],
+   "d": "h",
+   "e": "Censors objected, so Gabbar was handed to the police instead."
+  },
+  {
+   "q": "Which parallel-cinema director launched Shabana Azmi's career with Ankur in 1974?",
+   "a": "Shyam Benegal",
+   "w": [
+    "Govind Nihalani",
+    "Mani Kaul",
+    "Basu Chatterjee"
+   ],
+   "d": "h",
+   "e": "Ankur, Nishant and Manthan formed the core of the new Indian cinema movement."
+  },
+  {
+   "q": "Which 1946 Indian film won the Grand Prix at the first Cannes Film Festival?",
+   "a": "Neecha Nagar",
+   "w": [
+    "Awara",
+    "Do Bigha Zamin",
+    "Pather Panchali"
+   ],
+   "d": "h",
+   "e": "Chetan Anand's film shared the top prize at Cannes in 1946."
+  }
+ ]
+};
+
+/* ---------- tiny storage shim (degrades to memory if blocked) ---------- */
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return k in mem ? mem[k] : null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } }
+};
+
+/* ---------- deterministic PRNG (mulberry32) ---------- */
+function hash(str){
+  let h = 2166136261>>>0;
+  for (let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h>>>0;
+}
+function rng(seed){
+  let a = seed>>>0;
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a>>>15, 1 | a);
+    t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t;
+    return ((t ^ t>>>14) >>> 0) / 4294967296;
+  };
+}
+function shuffled(arr, rand){
+  const a = arr.slice();
+  for (let i=a.length-1;i>0;i--){ const j = Math.floor(rand()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+/* ---------- daily set: 2 easy, 2 medium, 1 hard ---------- */
+const PLAN = [['e',2],['m',2],['h',1]];
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function buildSet(pack, seedStr, exclude){
+  const bank = BANKS[pack];
+  const picked = [];
+  PLAN.forEach(([tier,n], idx)=>{
+    let pool = bank.filter(q => q.d===tier && !(exclude && exclude.has(q.q)));
+    if (pool.length < n){                       // bank exhausted for this tier - recycle it
+      if (exclude) bank.forEach(q => { if (q.d===tier) exclude.delete(q.q); });
+      pool = bank.filter(q=>q.d===tier);
+    }
+    const r = rng(hash(seedStr+'|'+pack+'|'+tier+'|'+idx));
+    picked.push(...shuffled(pool, r).slice(0,n));
+  });
+  if (exclude) picked.forEach(q => exclude.add(q.q));
+  const order = rng(hash(seedStr+'|'+pack+'|order'));
+  return shuffled(picked, order).map((q,i)=>{
+    const r = rng(hash(seedStr+'|'+pack+'|'+q.q+'|'+i));
+    const opts = shuffled([q.a, ...q.w], r);
+    return {q:q.q, d:q.d, e:q.e, a:q.a, opts, ai:opts.indexOf(q.a)};
+  });
+}
+
+/* ---------- state ---------- */
+/* ---------- play count ----------
+   Empty until the worker is deployed; while empty nothing is sent at all.
+   What goes over the wire is the pack name and whether the round was the
+   daily five or an unlimited one - no identifier, no cookie, no session.
+   Sent as text/plain so the browser treats it as a simple request and does
+   not attempt a CORS preflight, which sendBeacon cannot survive. */
+const COUNT_URL = '';
+
+const COUNTING = !!COUNT_URL;
+const FOOT_NOTE = COUNTING
+  ? 'No account · no cookies · only a count of rounds played · works without a connection'
+  : 'No account · no cookies · nothing recorded elsewhere · works without a connection';
+const RECORD_NOTE = COUNTING
+  ? 'Your record is kept on this device only. Nothing but a count of rounds played leaves it.'
+  : 'Kept on this device only — no account, and nothing sent anywhere.';
+
+
+/* ---------- the running tally ----------
+   Shown only once it is worth showing. Says rounds and questions, never
+   "users": the counter cannot distinguish one person playing twice from two
+   people playing once, so a user count is not a number it has. Questions are
+   exact - every completed round is five of them. */
+const TALLY_FROM = 100;
+
+function showTally(){
+  if (!COUNT_URL) return;
+  const url = COUNT_URL.replace(/\/count$/, '/totals');
+  fetch(url, {mode:'cors'})
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+      if (!d || typeof d.rounds !== 'number' || d.rounds < TALLY_FROM) return;
+      const n = x => x.toLocaleString();
+      $('tally').innerHTML = '<b>' + n(d.rounds) + '</b> rounds played · <b>'
+                           + n(d.questions) + '</b> questions answered';
+      $('tally').classList.add('on');
+    })
+    .catch(()=>{});   /* offline or blocked: the line simply stays hidden */
+}
+
+function countPlay(pack, kind){
+  if (!COUNT_URL) return;
+  const body = pack + '|' + kind;
+  try {
+    if (navigator.sendBeacon){
+      navigator.sendBeacon(COUNT_URL, new Blob([body], {type:'text/plain'}));
+    } else {
+      fetch(COUNT_URL, {method:'POST', body, keepalive:true,
+                        headers:{'Content-Type':'text/plain'}}).catch(()=>{});
+    }
+  } catch (e){ /* offline, blocked, or refused - the game does not care */ }
+}
+
+const DIFFNAME = {e:'Easy', m:'Medium', h:'Hard'};
+const POINTS = {e:10, m:15, h:25};
+const MAX_DAILY = PLAN.reduce((t,[tier,n])=>t + POINTS[tier]*n, 0);
+const PACKNAME = {bollywood:'Hindi cinema'};
+const PACKCOLOR = {bollywood:'#8a5a12'};
+let S = {pack:null, qs:[], i:0, score:0, points:0, log:[], daily:true};
+// per-pack session stats for unlimited play (resets when the page is reloaded)
+const SESSION = {};
+Object.keys(BANKS).forEach(p => SESSION[p] = {seen:new Set(), rounds:0, pts:0, correct:0, asked:0});
+
+const $ = id => document.getElementById(id);
+const show = id => {
+  ['home','quiz','result','record'].forEach(s=>$(s).classList.toggle('hidden', s!==id));
+  /* the way back is offered on every screen except the start itself */
+  $('backrow').classList.toggle('hidden', id === 'home');
+};
+$('back').addEventListener('click', ()=> show('home'));
+
+$('dateline').textContent = new Date().toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
+
+function refreshHome(){
+  Object.keys(BANKS).forEach(p=>{
+    const done = store.get('done:'+p+':'+todayKey());
+    const pts = store.get('pts:'+p+':'+todayKey());
+    const total = Number(store.get('total:'+p)) || 0;
+    const sess = SESSION[p];
+    const lines = [];
+    lines.push(done
+      ? 'Today — ' + done + ' of 5 · ' + pts + ' points' + (total ? ' · ' + total + ' in all' : '')
+      : MAX_DAILY + ' points a round');
+    if (sess && sess.rounds) lines.push(sess.rounds + ' further round' + (sess.rounds>1?'s':'') + ' today · ' + sess.pts + ' points');
+    $('meta-'+p).textContent = lines.join('\n');
+    $('meta-'+p).style.whiteSpace = 'pre-line';
+    const db = $('daily-'+p); if (db) db.textContent = done ? 'Read today\u2019s five again' : 'Today\u2019s five';
+  });
+}
+$('privacy').textContent = FOOT_NOTE;
+showTally();
+refreshHome();
+
+document.querySelectorAll('.go').forEach(b=>{
+  b.addEventListener('click', ()=> b.dataset.mode === 'record'
+    ? showRecord(b.dataset.pack)
+    : start(b.dataset.pack, b.dataset.mode === 'daily'));
+});
+
+function start(pack, daily){
+  const sess = SESSION[pack];
+  let qs;
+  if (daily){
+    qs = buildSet(pack, todayKey());
+  } else {
+    sess.rounds++;
+    qs = buildSet(pack, 'endless-'+Date.now()+'-'+Math.random(), sess.seen);
+  }
+  S = {pack, qs, i:0, score:0, points:0, log:[], daily};
+  document.documentElement.style.setProperty('--pack', PACKCOLOR[pack]);
+  show('quiz'); render();
+}
+
+function render(){
+  const q = S.qs[S.i];
+  $('prog').style.width = (S.i/S.qs.length*100)+'%';
+  $('counter').textContent = PACKNAME[S.pack]
+    + (S.daily ? ' \u00b7 the daily five' : ' \u00b7 round ' + SESSION[S.pack].rounds)
+    + ' \u00b7 question ' + (S.i+1) + ' of ' + S.qs.length;
+  $('diff').textContent = DIFFNAME[q.d] + ' \u00b7 ' + POINTS[q.d] + ' points';
+  $('running').textContent = S.points + ' points';
+  $('qtext').textContent = q.q;
+  $('explain').classList.add('hidden');
+  $('next').classList.add('hidden');
+  const box = $('opts'); box.innerHTML = '';
+  q.opts.forEach((text, i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = '<span class="k">'+['i','ii','iii','iv'][i]+'</span><span></span>';
+    b.lastChild.textContent = text;
+    b.addEventListener('click', ()=> answer(i));
+    box.appendChild(b);
+  });
+}
+
+function answer(choice){
+  const q = S.qs[S.i];
+  const btns = [...$('opts').children];
+  btns.forEach((b,i)=>{
+    b.disabled = true;
+    if (i === q.ai) b.classList.add('correct');
+    else if (i === choice) b.classList.add('wrong');
+  });
+  const ok = choice === q.ai;
+  const pts = POINTS[q.d];
+  if (ok){ S.score++; S.points += pts; $('running').textContent = S.points + ' points'; }
+  S.log.push({q:q.q, ok, a:q.a, pts});
+  $('explain').innerHTML = '<b>' + (ok ? 'Correct \u2014 ' + pts + ' points.' : 'The answer is ' + escapeHtml(q.a) + '.') + '</b> ' + escapeHtml(q.e);
+  $('explain').classList.remove('hidden');
+  const last = S.i === S.qs.length - 1;
+  $('next').textContent = last ? 'Close the round' : 'Next question';
+  $('next').classList.remove('hidden');
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+$('next').addEventListener('click', ()=>{
+  if (S.i === S.qs.length - 1) finish();
+  else { S.i++; render(); }
+});
+
+/* ---------- sharing ----------
+   The result grid uses filled and open squares rather than emoji blocks, so it
+   stays inside the no-emoji rule and still reads as a row at a glance. */
+const GAME_NAME = "smartRama · Bollywood";
+const SHARE_URL = "https://rpalasamudrum-cloud.github.io/smartrama/bollywood.html";
+let SHARE = null;
+
+function buildShare(streak){
+  const marks = S.log.map(r => r.ok ? '\u25a0' : '\u25a1').join(' ');
+  const date = new Date().toLocaleDateString(undefined, {day:'numeric', month:'long', year:'numeric'});
+  return GAME_NAME + ' \u2014 ' + date + '\n'
+       + marks + '\u2003\u00b7\u2003' + S.points + ' of ' + MAX_DAILY + '\n'
+       + (streak > 1 ? streak + ' days running\n' : '')
+       + '\n' + SHARE_URL;
+}
+
+
+function finish(){
+  $('prog').style.width = '100%';
+  const maxPts = S.qs.reduce((t,q)=>t + POINTS[q.d], 0);
+  $('bigscore').textContent = S.points;
+  $('subscore').textContent = S.score + ' of ' + S.qs.length + ' correct \u00b7 ' + S.points + ' of ' + maxPts + ' points';
+  const msgs = ['Begin again tomorrow; the text is patient.','A first step is still a step.','Half the path walked.','Well studied.','All but one.','Complete. Nothing was missed.'];
+  $('msg').textContent = msgs[S.score];
+  $('review').innerHTML = '';
+  S.log.forEach(r=>{
+    const row = document.createElement('div');
+    row.className = 'rrow';
+    row.innerHTML = '<span class="m '+(r.ok?'ok':'no')+'">'+(r.ok?'✓':'×')+'</span>'
+      + '<span class="q"></span>'
+      + '<span class="p'+(r.ok?' ok':'')+'">'+(r.ok?r.pts:'\u2014')+'</span>';
+    row.querySelector('.q').textContent = r.q;
+    $('review').appendChild(row);
+  });
+
+  const sess = SESSION[S.pack];
+  if (!S.daily){ sess.pts += S.points; sess.correct += S.score; sess.asked += S.qs.length; }
+
+  if (S.daily){
+    const firstPlayToday = store.get('done:'+S.pack+':'+todayKey()) === null;
+    let total = Number(store.get('total:'+S.pack)) || 0;
+    if (firstPlayToday){ total += S.points; store.set('total:'+S.pack, String(total)); }
+    store.set('pts:'+S.pack+':'+todayKey(), String(S.points));
+    store.set('done:'+S.pack+':'+todayKey(), String(S.score));
+    const prev = store.get('streak:'+S.pack);
+    const lastDay = store.get('lastday:'+S.pack);
+    const y = new Date(Date.now()-86400000);
+    const yKey = y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    let streak = 1;
+    if (lastDay === todayKey()) streak = Number(prev) || 1;
+    else if (lastDay === yKey) streak = (Number(prev)||0) + 1;
+    store.set('streak:'+S.pack, String(streak));
+    store.set('lastday:'+S.pack, todayKey());
+    $('streakline').textContent = streak + ' consecutive day' + (streak>1?'s':'') + ' of ' + PACKNAME[S.pack] + '\u2003·\u2003' + total + ' points in all\n' + 'A new five is set out at midnight.';
+    SHARE = buildShare(streak);
+    countPlay(S.pack, 'daily');
+  } else {
+    countPlay(S.pack, 'endless');
+    const bank = BANKS[S.pack].length;
+    $('streakline').textContent = sess.rounds + ' round' + (sess.rounds>1?'s':'') + ' this sitting'
+      + '\u2003·\u2003' + sess.pts + ' points\u2003·\u2003' + sess.correct + ' of ' + sess.asked + ' correct'
+      + '\u2003·\u2003' + Math.min(sess.seen.size, bank) + ' of ' + bank + ' questions seen';
+  }
+  if (!S.daily) SHARE = null;
+  $('share-btn').classList.toggle('hidden', !SHARE);
+  $('sharerow').classList.toggle('on', !!SHARE);
+  $('again-btn').textContent = S.daily ? 'Continue \u2014 unlimited rounds' : 'Another round';
+  refreshHome();
+  show('result');
+}
+
+$('home-btn').addEventListener('click', ()=>{ refreshHome(); show('home'); });
+
+/* ---------- personal record ----------
+   Read back from the same keys the game has always written. Local only: no
+   account, nothing sent anywhere, and it disappears if the browser is cleared. */
+function history(pack){
+  const out = [];
+  let ls; try { ls = localStorage; } catch(e){ return out; }
+  for (let i = 0; i < ls.length; i++){
+    const k = ls.key(i);
+    if (!k || k.indexOf('done:' + pack + ':') !== 0) continue;
+    const day = k.slice(('done:' + pack + ':').length);
+    out.push({day, correct: Number(ls.getItem(k)) || 0,
+              pts: Number(ls.getItem('pts:' + pack + ':' + day)) || 0});
+  }
+  return out.sort((a,b)=> a.day < b.day ? 1 : -1);   /* newest first */
+}
+
+function longestRun(days){
+  const set = new Set(days), seen = new Set();
+  let best = 0;
+  for (const d of days){
+    if (seen.has(d)) continue;
+    const prev = new Date(d + 'T00:00:00');
+    prev.setDate(prev.getDate() - 1);
+    const pk = prev.getFullYear()+'-'+String(prev.getMonth()+1).padStart(2,'0')+'-'+String(prev.getDate()).padStart(2,'0');
+    if (set.has(pk)) continue;                        /* not the start of a run */
+    let run = 0, cur = new Date(d + 'T00:00:00');
+    for (;;){
+      const ck = cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
+      if (!set.has(ck)) break;
+      seen.add(ck); run++;
+      cur.setDate(cur.getDate() + 1);
+    }
+    if (run > best) best = run;
+  }
+  return best;
+}
+
+function showRecord(pack){
+  const h = history(pack);
+  const played = h.length;
+  const pts = h.reduce((t,r)=> t + r.pts, 0);
+  const best = longestRun(h.map(r=>r.day));
+  const perfect = h.filter(r=> r.correct === 5).length;
+
+  $('recap').innerHTML = '';
+  [[played,'days played'], [pts,'points'], [best,'longest run'], [perfect,'all five']]
+    .forEach(([n,l])=>{
+      const d = document.createElement('div');
+      d.innerHTML = '<div class="n"></div><div class="l"></div>';
+      d.querySelector('.n').textContent = n;
+      d.querySelector('.l').textContent = l;
+      $('recap').appendChild(d);
+    });
+
+  $('hist').innerHTML = '';
+  if (!played){
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'Nothing recorded yet. Today\u2019s five would be a start.';
+    $('hist').appendChild(e);
+  } else {
+    h.slice(0, 30).forEach(r=>{
+      const row = document.createElement('div');
+      row.className = 'hrow';
+      row.innerHTML = '<span class="d"></span><span class="g"></span><span class="s"></span>';
+      const dt = new Date(r.day + 'T00:00:00');
+      row.querySelector('.d').textContent = dt.toLocaleDateString(undefined,{weekday:'short', day:'numeric', month:'short'});
+      row.querySelector('.g').textContent = '\u25a0'.repeat(r.correct) + '\u25a1'.repeat(5 - r.correct);
+      row.querySelector('.s').textContent = r.pts;
+      $('hist').appendChild(row);
+    });
+  }
+  $('recfoot').textContent = played > 30
+    ? 'The last thirty days shown, of ' + played + '.'
+    : RECORD_NOTE;
+  show('record');
+}
+
+$('record-home').addEventListener('click', ()=>{ refreshHome(); show('home'); });
+
+
+
+/* Named targets. Opened only on a click, and nothing from these services is
+   loaded into the page - no SDK, no pixel, no cookie. */
+$('sharerow').addEventListener('click', async e => {
+  const to = e.target && e.target.dataset && e.target.dataset.to;
+  if (!to || !SHARE) return;
+  const txt = encodeURIComponent(SHARE);
+  const url = encodeURIComponent(SHARE_URL);
+  /* everything above the trailing link, for services that take text and url apart */
+  const grid = encodeURIComponent(SHARE.slice(0, SHARE.lastIndexOf('\n\n')));
+  const target = {
+    whatsapp: 'https://wa.me/?text=' + txt,
+    x:        'https://twitter.com/intent/tweet?text=' + txt,
+    telegram: 'https://t.me/share/url?url=' + url + '&text=' + grid
+  }[to];
+  if (target){ window.open(target, '_blank', 'noopener,noreferrer'); return; }
+
+  const btn = e.target, label = btn.textContent;
+  try { await navigator.clipboard.writeText(SHARE); btn.textContent = 'Copied'; }
+  catch (err){ btn.textContent = 'Blocked'; }
+  setTimeout(()=>{ btn.textContent = label; }, 2000);
+});
+
+$('share-btn').addEventListener('click', async ()=>{
+  if (!SHARE) return;
+  const btn = $('share-btn'), label = btn.textContent;
+  const say = msg => { btn.textContent = msg; setTimeout(()=>{ btn.textContent = label; }, 2600); };
+  if (navigator.share){
+    try { await navigator.share({text: SHARE}); return; }
+    catch (err){ if (err && err.name === 'AbortError') return; }   /* dismissed, not failed */
+  }
+  try { await navigator.clipboard.writeText(SHARE); say('Copied to the clipboard'); }
+  catch (e){ say('Could not copy \u2014 copy it by hand'); }
+});
+
+$('again-btn').addEventListener('click', ()=> start(S.pack, false));
+
+/* keyboard: 1-4 to answer, Enter to advance */
+document.addEventListener('keydown', e=>{
+  if (e.key === 'Escape' && !$('backrow').classList.contains('hidden')){ show('home'); return; }
+  if ($('quiz').classList.contains('hidden')) return;
+  if (e.key >= '1' && e.key <= '4'){
+    const b = $('opts').children[+e.key - 1];
+    if (b && !b.disabled) b.click();
+  }
+  if (e.key === 'Enter' && !$('next').classList.contains('hidden')) $('next').click();
+});
+
+</script>
+</body>
+</html>
