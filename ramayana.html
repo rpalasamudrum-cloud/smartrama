@@ -235,7 +235,8 @@
     </div>
     <div class="foot">
       <b>Ten points</b> for the easy, <b>fifteen</b> for the middling, <b>twenty-five</b> for the difficult — seventy-five in a round.<br>
-      The five of the day are the same five for every reader. The unlimited rounds are yours alone.
+      The five of the day are the same five for every reader. The unlimited rounds are yours alone.<br>
+      <span id="privacy"></span>
     </div>
   </section>
 
@@ -942,6 +943,35 @@ function buildSet(pack, seedStr, exclude){
 }
 
 /* ---------- state ---------- */
+/* ---------- play count ----------
+   Empty until the worker is deployed; while empty nothing is sent at all.
+   What goes over the wire is the pack name and whether the round was the
+   daily five or an unlimited one - no identifier, no cookie, no session.
+   Sent as text/plain so the browser treats it as a simple request and does
+   not attempt a CORS preflight, which sendBeacon cannot survive. */
+const COUNT_URL = '';
+
+const COUNTING = !!COUNT_URL;
+const FOOT_NOTE = COUNTING
+  ? 'No account · no cookies · only a count of rounds played · works without a connection'
+  : 'No account · no cookies · nothing recorded elsewhere · works without a connection';
+const RECORD_NOTE = COUNTING
+  ? 'Your record is kept on this device only. Nothing but a count of rounds played leaves it.'
+  : 'Kept on this device only — no account, and nothing sent anywhere.';
+
+function countPlay(pack, kind){
+  if (!COUNT_URL) return;
+  const body = pack + '|' + kind;
+  try {
+    if (navigator.sendBeacon){
+      navigator.sendBeacon(COUNT_URL, new Blob([body], {type:'text/plain'}));
+    } else {
+      fetch(COUNT_URL, {method:'POST', body, keepalive:true,
+                        headers:{'Content-Type':'text/plain'}}).catch(()=>{});
+    }
+  } catch (e){ /* offline, blocked, or refused - the game does not care */ }
+}
+
 const DIFFNAME = {e:'Easy', m:'Medium', h:'Hard'};
 const POINTS = {e:10, m:15, h:25};
 const MAX_DAILY = PLAN.reduce((t,[tier,n])=>t + POINTS[tier]*n, 0);
@@ -978,6 +1008,7 @@ function refreshHome(){
     const db = $('daily-'+p); if (db) db.textContent = done ? 'Read today\u2019s five again' : 'Today\u2019s five';
   });
 }
+$('privacy').textContent = FOOT_NOTE;
 refreshHome();
 
 document.querySelectorAll('.go').forEach(b=>{
@@ -1063,6 +1094,7 @@ function buildShare(streak){
        + '\n' + SHARE_URL;
 }
 
+
 function finish(){
   $('prog').style.width = '100%';
   const maxPts = S.qs.reduce((t,q)=>t + POINTS[q.d], 0);
@@ -1101,7 +1133,9 @@ function finish(){
     store.set('lastday:'+S.pack, todayKey());
     $('streakline').textContent = streak + ' consecutive day' + (streak>1?'s':'') + ' of ' + PACKNAME[S.pack] + '\u2003·\u2003' + total + ' points in all\n' + 'A new five is set out at midnight.';
     SHARE = buildShare(streak);
+    countPlay(S.pack, 'daily');
   } else {
+    countPlay(S.pack, 'endless');
     const bank = BANKS[S.pack].length;
     $('streakline').textContent = sess.rounds + ' round' + (sess.rounds>1?'s':'') + ' this sitting'
       + '\u2003·\u2003' + sess.pts + ' points\u2003·\u2003' + sess.correct + ' of ' + sess.asked + ' correct'
@@ -1191,7 +1225,7 @@ function showRecord(pack){
   }
   $('recfoot').textContent = played > 30
     ? 'The last thirty days shown, of ' + played + '.'
-    : 'Kept on this device only \u2014 no account, and nothing sent anywhere.';
+    : RECORD_NOTE;
   show('record');
 }
 
