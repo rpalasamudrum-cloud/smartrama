@@ -77,4 +77,4 @@ The look is deliberate and should be kept: no emoji, no gradients, no drop shado
 
 ## Related
 
-**Hindu Mythology** is a separate repository: <https://github.com/rpalasamudrum-cloud/mythology-quiz>. A **Bible** pack was prototyped and set aside; its bank is preserved in the working directory as `bible-pack.js`. Neither is referenced anywhere in these files.
+**Hindu Mythology** is a separate repository: <https://github.com/rpalasamudrum-cloud/panchamrutha>. A **Bible** pack was prototyped and set aside; its bank is preserved in the working directory as `bible-pack.js`. Neither is referenced anywhere in these files.
