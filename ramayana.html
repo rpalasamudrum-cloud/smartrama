@@ -154,6 +154,18 @@
   }
   .back:hover{color:var(--ink); border-bottom-color:var(--ink)}
   .back:focus-visible{outline:1px solid var(--pack); outline-offset:3px}
+  .sharerow{
+    display:none; gap:0; margin-top:10px; text-align:center;
+    font-size:10.5px; letter-spacing:.15em; text-transform:uppercase;
+  }
+  .sharerow.on{display:block}
+  .sharerow button{
+    font:inherit; font-size:inherit; letter-spacing:inherit; text-transform:inherit;
+    font-weight:500; background:none; border:0; cursor:pointer; color:var(--ink-soft);
+    padding:4px 9px; border-bottom:1px solid transparent;
+  }
+  .sharerow button:hover{color:var(--pack); border-bottom-color:var(--pack)}
+  .sharerow .sep{color:var(--rule)}
   .foot{
     margin-top:26px; font-size:12.5px; line-height:1.85; color:var(--ink-soft);
     font-weight:300; text-align:center; border-top:1px solid var(--rule); padding-top:18px;
@@ -224,6 +236,9 @@
     <div class="streak" id="streakline"></div>
     <button class="next" id="again-btn"></button>
     <button class="ghost hidden" id="share-btn">Share today’s five</button>
+    <div class="sharerow" id="sharerow">
+      <button type="button" data-to="whatsapp">WhatsApp</button><span class="sep">·</span><button type="button" data-to="x">X</button><span class="sep">·</span><button type="button" data-to="telegram">Telegram</button><span class="sep">·</span><button type="button" data-to="copy">Copy</button>
+    </div>
     <button class="ghost" id="home-btn">Return to the packs</button>
   </section>
 </div>
@@ -1060,12 +1075,36 @@ function finish(){
   }
   if (!S.daily) SHARE = null;
   $('share-btn').classList.toggle('hidden', !SHARE);
+  $('sharerow').classList.toggle('on', !!SHARE);
   $('again-btn').textContent = S.daily ? 'Continue \u2014 unlimited rounds' : 'Another round';
   refreshHome();
   show('result');
 }
 
 $('home-btn').addEventListener('click', ()=>{ refreshHome(); show('home'); });
+
+
+/* Named targets. Opened only on a click, and nothing from these services is
+   loaded into the page - no SDK, no pixel, no cookie. */
+$('sharerow').addEventListener('click', async e => {
+  const to = e.target && e.target.dataset && e.target.dataset.to;
+  if (!to || !SHARE) return;
+  const txt = encodeURIComponent(SHARE);
+  const url = encodeURIComponent(SHARE_URL);
+  /* everything above the trailing link, for services that take text and url apart */
+  const grid = encodeURIComponent(SHARE.slice(0, SHARE.lastIndexOf('\n\n')));
+  const target = {
+    whatsapp: 'https://wa.me/?text=' + txt,
+    x:        'https://twitter.com/intent/tweet?text=' + txt,
+    telegram: 'https://t.me/share/url?url=' + url + '&text=' + grid
+  }[to];
+  if (target){ window.open(target, '_blank', 'noopener,noreferrer'); return; }
+
+  const btn = e.target, label = btn.textContent;
+  try { await navigator.clipboard.writeText(SHARE); btn.textContent = 'Copied'; }
+  catch (err){ btn.textContent = 'Blocked'; }
+  setTimeout(()=>{ btn.textContent = label; }, 2000);
+});
 
 $('share-btn').addEventListener('click', async ()=>{
   if (!SHARE) return;
