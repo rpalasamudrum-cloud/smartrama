@@ -191,6 +191,12 @@
     color:var(--ink-soft); padding:20px 0 26px;
   }
   .copy{display:inline-block; margin-top:7px; color:var(--ink-muted); font-size:11.5px}
+  .tally{
+    display:none; margin-top:9px; font-family:var(--display); font-style:italic;
+    font-size:14.5px; color:var(--ink-soft); letter-spacing:.01em;
+  }
+  .tally.on{display:block}
+  .tally b{font-style:normal; font-weight:500; color:var(--pack); font-variant-numeric:tabular-nums}
   .foot{
     margin-top:26px; font-size:12.5px; line-height:1.85; color:var(--ink-soft);
     font-weight:300; text-align:center; border-top:1px solid var(--rule); padding-top:18px;
@@ -234,6 +240,7 @@
         </div>
       </div>
     </div>
+    <div class="tally" id="tally"></div>
     <div class="foot">
       <b>Ten points</b> for the easy, <b>fifteen</b> for the middling, <b>twenty-five</b> for the difficult — seventy-five in a round.<br>
       The five of the day are the same five for every reader. The unlimited rounds are yours alone.<br>
@@ -961,6 +968,29 @@ const RECORD_NOTE = COUNTING
   ? 'Your record is kept on this device only. Nothing but a count of rounds played leaves it.'
   : 'Kept on this device only — no account, and nothing sent anywhere.';
 
+
+/* ---------- the running tally ----------
+   Shown only once it is worth showing. Says rounds and questions, never
+   "users": the counter cannot distinguish one person playing twice from two
+   people playing once, so a user count is not a number it has. Questions are
+   exact - every completed round is five of them. */
+const TALLY_FROM = 100;
+
+function showTally(){
+  if (!COUNT_URL) return;
+  const url = COUNT_URL.replace(/\/count$/, '/totals');
+  fetch(url, {mode:'cors'})
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+      if (!d || typeof d.rounds !== 'number' || d.rounds < TALLY_FROM) return;
+      const n = x => x.toLocaleString();
+      $('tally').innerHTML = '<b>' + n(d.rounds) + '</b> rounds played · <b>'
+                           + n(d.questions) + '</b> questions answered';
+      $('tally').classList.add('on');
+    })
+    .catch(()=>{});   /* offline or blocked: the line simply stays hidden */
+}
+
 function countPlay(pack, kind){
   if (!COUNT_URL) return;
   const body = pack + '|' + kind;
@@ -1011,6 +1041,7 @@ function refreshHome(){
   });
 }
 $('privacy').textContent = FOOT_NOTE;
+showTally();
 refreshHome();
 
 document.querySelectorAll('.go').forEach(b=>{
