@@ -958,7 +958,7 @@ function buildSet(pack, seedStr, exclude){
    daily five or an unlimited one - no identifier, no cookie, no session.
    Sent as text/plain so the browser treats it as a simple request and does
    not attempt a CORS preflight, which sendBeacon cannot survive. */
-const COUNT_URL = '';
+const COUNT_URL = 'https://smartrama-play-count.play-count.workers.dev/count';
 
 const COUNTING = !!COUNT_URL;
 const FOOT_NOTE = COUNTING
