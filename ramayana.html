@@ -223,6 +223,7 @@
     <div class="review" id="review"></div>
     <div class="streak" id="streakline"></div>
     <button class="next" id="again-btn"></button>
+    <button class="ghost hidden" id="share-btn">Share today’s five</button>
     <button class="ghost" id="home-btn">Return to the packs</button>
   </section>
 </div>
@@ -997,6 +998,22 @@ $('next').addEventListener('click', ()=>{
   else { S.i++; render(); }
 });
 
+/* ---------- sharing ----------
+   The result grid uses filled and open squares rather than emoji blocks, so it
+   stays inside the no-emoji rule and still reads as a row at a glance. */
+const GAME_NAME = "smartRama";
+const SHARE_URL = "https://rpalasamudrum-cloud.github.io/smartrama/";
+let SHARE = null;
+
+function buildShare(streak){
+  const marks = S.log.map(r => r.ok ? '\u25a0' : '\u25a1').join(' ');
+  const date = new Date().toLocaleDateString(undefined, {day:'numeric', month:'long', year:'numeric'});
+  return GAME_NAME + ' \u2014 ' + date + '\n'
+       + marks + '\u2003\u00b7\u2003' + S.points + ' of ' + MAX_DAILY + '\n'
+       + (streak > 1 ? streak + ' days running\n' : '')
+       + '\n' + SHARE_URL;
+}
+
 function finish(){
   $('prog').style.width = '100%';
   const maxPts = S.qs.reduce((t,q)=>t + POINTS[q.d], 0);
@@ -1034,18 +1051,34 @@ function finish(){
     store.set('streak:'+S.pack, String(streak));
     store.set('lastday:'+S.pack, todayKey());
     $('streakline').textContent = streak + ' consecutive day' + (streak>1?'s':'') + ' of ' + PACKNAME[S.pack] + '\u2003·\u2003' + total + ' points in all\n' + 'A new five is set out at midnight.';
+    SHARE = buildShare(streak);
   } else {
     const bank = BANKS[S.pack].length;
     $('streakline').textContent = sess.rounds + ' round' + (sess.rounds>1?'s':'') + ' this sitting'
       + '\u2003·\u2003' + sess.pts + ' points\u2003·\u2003' + sess.correct + ' of ' + sess.asked + ' correct'
       + '\u2003·\u2003' + Math.min(sess.seen.size, bank) + ' of ' + bank + ' questions seen';
   }
+  if (!S.daily) SHARE = null;
+  $('share-btn').classList.toggle('hidden', !SHARE);
   $('again-btn').textContent = S.daily ? 'Continue \u2014 unlimited rounds' : 'Another round';
   refreshHome();
   show('result');
 }
 
 $('home-btn').addEventListener('click', ()=>{ refreshHome(); show('home'); });
+
+$('share-btn').addEventListener('click', async ()=>{
+  if (!SHARE) return;
+  const btn = $('share-btn'), label = btn.textContent;
+  const say = msg => { btn.textContent = msg; setTimeout(()=>{ btn.textContent = label; }, 2600); };
+  if (navigator.share){
+    try { await navigator.share({text: SHARE}); return; }
+    catch (err){ if (err && err.name === 'AbortError') return; }   /* dismissed, not failed */
+  }
+  try { await navigator.clipboard.writeText(SHARE); say('Copied to the clipboard'); }
+  catch (e){ say('Could not copy \u2014 copy it by hand'); }
+});
+
 $('again-btn').addEventListener('click', ()=> start(S.pack, false));
 
 /* keyboard: 1-4 to answer, Enter to advance */
