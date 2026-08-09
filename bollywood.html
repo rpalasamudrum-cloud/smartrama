@@ -197,6 +197,34 @@
   }
   .tally.on{display:block}
   .tally b{font-style:normal; font-weight:500; color:var(--pack); font-variant-numeric:tabular-nums}
+  /* ---- writing in, and readers' notes ---- */
+  .reach{margin-top:20px; text-align:center; font-size:11px; letter-spacing:.15em; text-transform:uppercase}
+  .reach button, .reach a{
+    font:inherit; font-size:inherit; letter-spacing:inherit; text-transform:inherit; font-weight:500;
+    background:none; border:0; padding:4px 9px; cursor:pointer; color:var(--ink-soft);
+    text-decoration:none; border-bottom:1px solid transparent;
+  }
+  .reach button:hover, .reach a:hover{color:var(--pack); border-bottom-color:var(--pack)}
+  .reach .sep{color:var(--rule)}
+  .write{display:none; margin-top:18px; border-top:1px solid var(--rule); padding-top:18px}
+  .write.on{display:block}
+  .write label{display:block; font-size:11px; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--ink-soft); margin-bottom:5px}
+  .write input, .write textarea{
+    font:inherit; font-size:15px; width:100%; padding:10px 12px; margin-bottom:13px;
+    border:1px solid var(--rule); background:var(--leaf); color:var(--ink); border-radius:1px;
+  }
+  .write textarea{min-height:104px; resize:vertical; line-height:1.6}
+  .write .hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden}
+  .write .said{margin-top:10px; font-family:var(--display); font-style:italic; font-size:15.5px; color:var(--pack)}
+  .notes{margin-top:26px; border-top:1px solid var(--rule); padding-top:6px}
+  .notes h4{
+    margin:0 0 4px; font-size:11px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--ink-soft); font-weight:500;
+  }
+  .note-item{border-bottom:1px solid var(--rule-soft); padding:12px 0}
+  .note-item .b{font-size:14.5px; line-height:1.62; font-weight:300; color:var(--ink-soft)}
+  .note-item .n{margin-top:5px; font-family:var(--display); font-style:italic; font-size:13.5px; color:var(--ink-muted)}
   .foot{
     margin-top:26px; font-size:12.5px; line-height:1.85; color:var(--ink-soft);
     font-weight:300; text-align:center; border-top:1px solid var(--rule); padding-top:18px;
@@ -241,6 +269,22 @@
       </div>
     </div>
     <div class="tally" id="tally"></div>
+    <div class="notes hidden" id="notes"></div>
+    <div class="reach">
+      <button type="button" id="write-open">Write to me</button><span class="sep">·</span><a href="https://www.tiktok.com/@bojraj50" target="_blank" rel="noopener noreferrer">TikTok</a>
+    </div>
+    <div class="write" id="write">
+      <label for="w-body">Your message</label>
+      <textarea id="w-body" maxlength="2000" placeholder="A correction, a question, or a question you would like to see."></textarea>
+      <label for="w-name">Name, if you like</label>
+      <input id="w-name" type="text" maxlength="60" autocomplete="off">
+      <label for="w-email">Email, only if you would like a reply</label>
+      <input id="w-email" type="email" maxlength="120" autocomplete="off">
+      <div class="hp"><label for="w-hp">Leave this empty</label><input id="w-hp" type="text" tabindex="-1" autocomplete="off"></div>
+      <button class="go" type="button" id="w-send">Send</button>
+      <div class="said" id="w-said"></div>
+    </div>
+
     <div class="foot">
       <b>Ten points</b> for the easy, <b>fifteen</b> for the middling, <b>twenty-five</b> for the difficult — seventy-five in a round.<br>
       The five of the day are the same five for every reader. The unlimited rounds are yours alone.<br>
@@ -991,6 +1035,7 @@ function showTally(){
     .catch(()=>{});   /* offline or blocked: the line simply stays hidden */
 }
 
+
 function countPlay(pack, kind){
   if (!COUNT_URL) return;
   const body = pack + '|' + kind;
@@ -1040,8 +1085,66 @@ function refreshHome(){
     const db = $('daily-'+p); if (db) db.textContent = done ? 'Read today\u2019s five again' : 'Today\u2019s five';
   });
 }
+/* ---------- writing in ----------
+   Same worker as the counter. Form-encoded so the browser treats it as a
+   simple request and skips the CORS preflight. The email field is optional and
+   is never published: publishing copies only the name and the text. */
+function reachUrl(path){
+  return COUNT_URL ? COUNT_URL.replace(/\/count$/, path) : '';
+}
+
+function showNotes(){
+  const url = reachUrl('/comments');
+  if (!url) return;
+  fetch(url).then(r => r.ok ? r.json() : null).then(list => {
+    if (!list || !list.length) return;
+    let h = '<h4>Readers&rsquo; notes</h4>';
+    for (const c of list.slice(0, 12)){
+      const d = document.createElement('div');
+      d.textContent = c.body;                       /* escaped by the DOM */
+      const n = document.createElement('div');
+      n.textContent = c.name ? '— ' + c.name : '— anonymous';
+      h += '<div class="note-item"><div class="b">' + d.innerHTML + '</div>'
+         + '<div class="n">' + n.innerHTML + '</div></div>';
+    }
+    $('notes').innerHTML = h;
+    $('notes').classList.remove('hidden');
+  }).catch(()=>{});
+}
+
+$('write-open').addEventListener('click', ()=>{
+  const box = $('write');
+  box.classList.toggle('on');
+  if (box.classList.contains('on')) $('w-body').focus();
+});
+
+$('w-send').addEventListener('click', async ()=>{
+  const body = $('w-body').value.trim();
+  const said = $('w-said');
+  if (!body){ said.textContent = 'Nothing written yet.'; return; }
+  const url = reachUrl('/message');
+  if (!url){ said.textContent = 'Not reachable just now.'; return; }
+  const data = new URLSearchParams({
+    body, name: $('w-name').value.trim(), email: $('w-email').value.trim(),
+    hp: $('w-hp').value, pack: Object.keys(BANKS)[0]
+  });
+  $('w-send').disabled = true;
+  try {
+    const r = await fetch(url, {method:'POST', body: data,
+      headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+    if (r.status === 429){ said.textContent = 'Just sent one — try again in a minute.'; }
+    else if (!r.ok){ said.textContent = 'That did not send. Try again later.'; }
+    else {
+      said.textContent = 'Thank you — it has reached me.';
+      $('w-body').value = ''; $('w-name').value = ''; $('w-email').value = '';
+    }
+  } catch (e){ said.textContent = 'That did not send. Try again later.'; }
+  $('w-send').disabled = false;
+});
+
 $('privacy').textContent = FOOT_NOTE;
 showTally();
+showNotes();
 refreshHome();
 
 document.querySelectorAll('.go').forEach(b=>{
