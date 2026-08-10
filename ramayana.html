@@ -234,6 +234,21 @@
   }
   .uplink:hover{color:var(--pack); border-bottom-color:var(--pack)}
   .uplink .m{color:var(--rule); margin-right:5px}
+  /* Hollow and filled card-suit hearts, not the emoji: they set in the page's
+     own type and take its colour. */
+  .likerow{margin-top:14px; text-align:center}
+  .likebtn{
+    font:inherit; background:none; border:0; cursor:pointer; padding:5px 10px;
+    color:var(--ink-soft); display:inline-flex; align-items:baseline; gap:8px;
+    border-bottom:1px solid transparent;
+  }
+  .likebtn:hover{color:var(--pack); border-bottom-color:var(--rule)}
+  .likebtn .hz{font-size:19px; line-height:1; color:var(--pack)}
+  .likebtn .hn{
+    font-size:11px; letter-spacing:.15em; text-transform:uppercase; font-weight:500;
+    font-variant-numeric:tabular-nums;
+  }
+  .likebtn[disabled]{cursor:default; opacity:.65}
   .foot{
     margin-top:26px; font-size:12.5px; line-height:1.85; color:var(--ink-soft);
     font-weight:300; text-align:center; border-top:1px solid var(--rule); padding-top:18px;
@@ -279,6 +294,12 @@
       </div>
     </div>
     <div class="tally" id="tally"></div>
+    <div class="likerow">
+      <button class="likebtn" id="like" type="button" aria-pressed="false">
+        <span class="hz" id="like-mark">&#9825;</span><span class="hn" id="like-n">&nbsp;</span>
+      </button>
+    </div>
+
     <div class="notes hidden" id="notes"></div>
     <div class="reach">
       <button type="button" id="write-open">Write to me</button><span class="sep">·</span><a href="https://www.tiktok.com/@bojraj50" target="_blank" rel="noopener noreferrer">TikTok</a>
@@ -1016,7 +1037,7 @@ const COUNT_URL = 'https://smartrama-play-count.play-count.workers.dev/count';
 
 const COUNTING = !!COUNT_URL;
 const FOOT_NOTE = COUNTING
-  ? 'No account · no cookies · only a count of rounds played · works without a connection'
+  ? 'No account · no cookies · counts of rounds and marks, nothing more · works without a connection'
   : 'No account · no cookies · nothing recorded elsewhere · works without a connection';
 const RECORD_NOTE = COUNTING
   ? 'Your record is kept on this device only. Nothing but a count of rounds played leaves it.'
@@ -1094,7 +1115,65 @@ function refreshHome(){
     $('meta-'+p).style.whiteSpace = 'pre-line';
     const db = $('daily-'+p); if (db) db.textContent = done ? 'Read today\u2019s five again' : 'Today\u2019s five';
   });
+}const LIKE_PACK = 'ramayana';
+
+/* ---------- the heart ----------
+   U+2661 hollow, U+2665 filled. Card suits, not emoji, so they set in the
+   page's type and obey the no-emoji rule. Your own press is remembered here on
+   this device; the server keeps a number per pack and nothing more. */
+function likeUrl(path){ return COUNT_URL ? COUNT_URL.replace(/\/count$/, path) : ''; }
+
+let likeCount = null;
+let liked = false;
+
+function paintLike(){
+  $('like-mark').innerHTML = liked ? '&#9829;' : '&#9825;';
+  $('like').setAttribute('aria-pressed', liked ? 'true' : 'false');
+  $('like').title = liked ? 'You have marked this. Press again to undo.' : 'Mark this';
+  $('like-n').textContent = likeCount === null ? '' : likeCount.toLocaleString();
 }
+
+function showLike(){
+  const url = likeUrl('/likes');
+  if (!url){ return; }
+  liked = store.get('liked:' + LIKE_PACK) === '1';
+  paintLike();
+  fetch(url).then(r => r.ok ? r.json() : null).then(d => {
+    if (!d || typeof d[LIKE_PACK] !== 'number') return;
+    likeCount = d[LIKE_PACK];
+    paintLike();
+  }).catch(()=>{});
+}
+
+$('like').addEventListener('click', async ()=>{
+  const url = likeUrl('/like');
+  if (!url) return;
+  const want = !liked;
+  const btn = $('like');
+  btn.disabled = true;
+  /* move at once, then put it back if the server disagrees */
+  liked = want;
+  if (likeCount !== null) likeCount = Math.max(0, likeCount + (want ? 1 : -1));
+  paintLike();
+  try {
+    const r = await fetch(url, {method:'POST', body: LIKE_PACK + '|' + (want ? 'up' : 'down'),
+                               headers:{'Content-Type':'text/plain'}});
+    if (r.ok){
+      const n = Number(await r.text());
+      if (!Number.isNaN(n)) likeCount = n;
+      store.set('liked:' + LIKE_PACK, want ? '1' : '0');
+    } else {
+      liked = !want;                                  /* refused: undo the optimism */
+      if (likeCount !== null) likeCount = Math.max(0, likeCount + (want ? -1 : 1));
+    }
+  } catch (e){
+    liked = !want;
+    if (likeCount !== null) likeCount = Math.max(0, likeCount + (want ? -1 : 1));
+  }
+  paintLike();
+  btn.disabled = false;
+});
+
 /* ---------- writing in ----------
    Same worker as the counter. Form-encoded so the browser treats it as a
    simple request and skips the CORS preflight. The email field is optional and
@@ -1155,6 +1234,7 @@ $('w-send').addEventListener('click', async ()=>{
 $('privacy').textContent = FOOT_NOTE;
 showTally();
 showNotes();
+showLike();
 refreshHome();
 
 document.querySelectorAll('.go').forEach(b=>{
